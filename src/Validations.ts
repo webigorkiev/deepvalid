@@ -17,7 +17,7 @@
  let r = objValidation.validate(params, ['last']);
  */
 import pickBy from '../../es-lodash/pickBy';
-import ApiError from "../../Common/ApiError/ApiError";
+import {ApiError} from "@jwn-js/common";
 
 const defaultMessages = {
     required:  "пустое поле",
