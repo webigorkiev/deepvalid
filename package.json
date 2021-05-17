@@ -1,0 +1,39 @@
+{
+  "name": "@jwn-js/node-ts-starter-package",
+  "private": true,
+  "version": "0.0.2",
+  "description": "Template for @jwn-js packages",
+  "main": "dist/index.js",
+  "scripts": {
+    "app": "concurrently \"npm run serve\" \"nodemon ./dist/index-dev.js\"",
+    "serve": "webpack --config ./webpack.config.js --watch",
+    "test": "mochapack --webpack-config ./webpack.config.js --recursive ./test/unit/**/*.{js,cjs,mjs,ts}",
+    "lint": "eslint src/** --ignore-path ./.eslintignore",
+    "lint:fix": "eslint src/** --ignore-path ./.eslintignore --fix",
+    "docs": "typedoc --includeVersion --excludePrivate --out docs src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://tehnoskarb@35.158.77.103:/var/www/tehnoskarb/git/@jwn-js/node-ts-starter-package.git"
+  },
+  "author": "webigorkiev",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^15.3.0",
+    "@typescript-eslint/eslint-plugin": "^4.23.0",
+    "chai": "^4.3.4",
+    "chai-http": "^4.3.0",
+    "concurrently": "^6.1.0",
+    "esbuild-loader": "^2.13.0",
+    "eslint": "^7.26.0",
+    "mocha": "^8.4.0",
+    "mochapack": "^2.1.0",
+    "nodemon": "^2.0.7",
+    "typedoc": "^0.20.36",
+    "webpack": "^5.37.0",
+    "webpack-cli": "^4.7.0",
+    "webpack-node-externals": "^3.0.0"
+  },
+  "dependencies": {
+  }
+}
