@@ -1,6 +1,6 @@
 .idea/
 *-dev.js
-dist/dev
+development
 node_modules
 package-lock.json
 connect.json

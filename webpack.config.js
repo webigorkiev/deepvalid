@@ -1,10 +1,8 @@
 const path = require("path");
 const crypto = require('crypto');
-
 const webpack = require("webpack");
 const nodeExternals = require("webpack-node-externals");
 const { ESBuildMinifyPlugin } = require("esbuild-loader");
-
 const progress = require("./deploy/progress");
 
 module.exports = (env, argv) => {
@@ -28,9 +26,9 @@ module.exports = (env, argv) => {
         },
         target: "node",
         output: {
-            filename: isDevelopment ? "[name]-dev.js" : "[name].js",
-            chunkFilename:  ((!isDevelopment) ? "prod/" : "dev/") + "[name].js",
-            path: path.resolve("./dist"),
+            filename: "[name].js",
+            chunkFilename:  "chunks/[name].js",
+            path: path.resolve((isDevelopment ? "./development" : "./dist")),
             libraryTarget: "commonjs2",
             globalObject: "this"
         },

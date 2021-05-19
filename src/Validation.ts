@@ -1,46 +1,52 @@
-/*
- let params = {
-        name: 'Test',
-        last: '+380971234567'
-    };
- let validationsModel = {
-        name: {
-            required: true,
-            minlength: 10
-        },
-        last: {
-            required: true,
-            phone: true
-        },
-    };
- let objValidation = new Validations(validationsModel);
- let r = objValidation.validate(params, ['last']);
- */
-import pickBy from '../../es-lodash/pickBy';
-import {ApiError} from "@jwn-js/common";
+import pickBy from "@jwn-js/easy-ash/pickBy";
+import ApiError from "@jwn-js/common/ApiError";
 
-const defaultMessages = {
-    required:  "пустое поле",
-    boolean: "не булевое значение",
-    minlength: "количество символов в строке меньше !%",
-    maxlength: "количество символов в строке больше !%",
-    rangelength: "количество символов в строке находится не в дипазоне от !% до !% символов",
-    range: "значение находится не в диапазоне от !% до !%",
-    min: "значение меньше минимального значения !%",
-    max: "значение больше максимального значения !%",
-    email: "email адрес не корректный",
-    url: "URL адрес не корректный",
-    dateISO: "формат даты не корректный",
-    digits: "значение не является целым числом",
-    number: "значение не является десятичным числом",
-    equalTo: "значения полей не эквивалентны",
-    regexp: "значение поля не соответствует шаблону",
-    phone: "номер телефона не корректный",
-    depends: "Ошибка пользовательской функции",
-    rangedate: "Дата вне диапазона дат !% - !%"
+/**
+ * Options for validators
+ */
+export interface ValidatorsOptions {
+    message?: string,
+    param: any,
+    code?: number,
+    statusCode?: number
+}
+
+type ValidationModel = Record<string, ValidatorsOptions|ValidationModel[]>
+
+/**
+ * Default options for validation class
+ */
+const validationDefaultOption = {
+    isFieldNameMode: true,
+    defaultCode: 400
 };
 
-// Validators
+/**
+ * Validators default messages
+ * !% replase with values
+ */
+const defaultMessages = {
+    required:  "the value is empty",
+    boolean: "the value not boolean value",
+    minlength: "the number of characters in the line is less !%",
+    maxlength: "the number of characters in the line is more !%",
+    rangelength: "the number of characters in a line outside the range from !% to !% символов",
+    range: "the value is not in the range from !% to !%",
+    min: "the value less than minimum value !%",
+    max: "the value is greater than the maximum value !%",
+    email: "the email address is not correct",
+    url: "the url is not correct",
+    dateISO: "the ISO date format is not correct",
+    digits: "the value is not an integer",
+    number: "the value is not a decimal number",
+    equalTo: "field values are not equivalent",
+    regexp: "the field value does not match the pattern",
+    phone: "the phone number is not correct",
+    depends: "the custom handler error",
+    rangedate: "the date out of range !% - !%"
+};
+
+// Validators with default options
 export const required = true;
 export const boolean = true;
 export const minlength = 0;
@@ -57,58 +63,74 @@ export const number = true;
 export const equalTo = true;
 export const regexp = /\d/i;
 export const phone = true;
-export const depends = (value, options) => true;
-export const rangedate = [new Date(), new Date()];
+export const depends: CallableFunction = (value: any, options: ValidatorsOptions) => true;
+export const rangedate: [Date, Date] = [new Date(), new Date()];
 
 /**
  * @class Validations
  * Beckend system for validation input data
+ * Deep validation model support
  */
-export default class {
+export default class Validation {
 
     /**
-     * Constructor
-     * @param {Object} model - validation model
-     * @param {Boolean} isFieldNameMode - show row name in error message
-     * @param {Number} defaultCode - response code
+     * Is show field names
      */
-    constructor(model = {}, isFieldNameMode = true, defaultCode = 400) {
+    #isFieldNameMode: boolean;
 
-        // All input field
-        this._params;
+    /**
+     * Default statusCode
+     */
+    #defaultCode: number;
 
-        // validated rows - onli rows that has validation
-        this._filteredParams;
+    /**
+     * Input params
+     */
+    #inputParams: Record<string, any>;
 
-        // current param name
-        this._current;
+    /**
+     * Only params that has to validate
+     */
+    #validatedParams: Record<string, any>;
 
-        // Model validation
-        this._validationModel = model;
+    /**
+     * Current param
+     */
+    #current:any;
 
-        // Show row name
-        this._isFieldNameMode = isFieldNameMode;
+    /**
+     * Validation model
+     * {"name":{required, minlength: 3}}
+     */
+    #validationModel: ValidationModel;
 
-        // Default response code
-        this.defaultCode = defaultCode;
+    /**
+     * @constructor
+     * @param model - validation model
+     * @param options - validation default options
+     */
+    constructor(model: ValidationModel = {}, options: {isFieldNameMode?: boolean, defaultCode?: number} = {}) {
+        const opt = Object.assign({}, validationDefaultOption, options);
+        this.#validationModel = model;
+        this.#isFieldNameMode = <boolean>opt.isFieldNameMode;
+        this.#defaultCode = <number>opt.defaultCode;
     }
 
     /**
      * Set validation model
-     *
-     * @param {Object} model - validations ruls
+     * @param model - validations model ruls
      */
-    setModel(model = {}) {
-        this._validationModel = model;
+    setModel(model: ValidationModel = {}) {
+        this.#validationModel = model;
     }
 
     /**
      * Validate params
-     * @param params
-     * @param filters
+     * @param params {"user": {"fio":"", phone: ""}, isError: false}
+     * @param filters [] field that need validation - array - ["isError", {"user": ["fio", "phone"]}]
      * @return {Boolean} - result of validation
      */
-    validate(params, filters = []) {
+    validate(params: Record<string| number, any>, filters: Array<string|Record<string, Array<string>>> = []) {
         this._params = params;
         this._filteredParams = params;
 
@@ -159,30 +181,32 @@ export default class {
 
     /**
      * Get only validated params
-     * @return {*}
+     * @returns params, that have been validated
      */
-    getParams() {
-        return this._filteredParams
+    getValidatedParams() {
+        return this.#validatedParams
     }
 
     /**
      * Get input params
-     * @return {*}
+     * @returns all input params
      */
     getInputParams() {
-        return this._params;
+        return this.#inputParams;
     }
 
     /**
      * Required
      * @param value - input value
      * @param options - validator`s options
-     * @return {boolean}
+     * @returns
+     * @throws ApiError
      */
-    required(value, options) {
-        if(!value && value !== 0 && value !== false) {
-            options['message'] = options['message'] ? options['message'] : defaultMessages['required'];
-            throw new ApiError(this._messageReplace(options['message']), 3, this.defaultCode);
+    required(value: any, options: ValidatorsOptions): void {
+
+        if(value) {
+            options.message = options.message ?? defaultMessages.required;
+            throw new ApiError(this._messageReplace(options.message), 3, this.#defaultCode);
         }
     }
 
@@ -468,11 +492,10 @@ export default class {
 
     /**
      * Replace insert in error massage
-     * @param {String} message
-     * @param {Array} arrReplace - array of replace value
-     * @private
+     * @param message input message string
+     * @param arrReplace - array of replace value
      */
-    _messageReplace(message, arrReplace = []) {
+    #messageReplace(message: string, arrReplace: Array<string> = []) {
         arrReplace.map(v => message = message.replace('!%', v));
 
         message = this._isFieldNameMode ? `${this._current}: ${message}` : message;
