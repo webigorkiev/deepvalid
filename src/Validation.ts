@@ -125,8 +125,8 @@ export default class Validation {
 
     /**
      * For testing private methods
-     * @param name
-     * @param args
+     * @param name - name of method
+     * @param args - arguments
      * @returns some private methods
      */
     __private__(name: string, ...args: Array<any>): any {
