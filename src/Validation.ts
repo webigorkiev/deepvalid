@@ -1,6 +1,7 @@
 import pickBy from "@jwn-js/easy-ash/pickBy";
 import isObject from "@jwn-js/easy-ash/isObject";
 import ApiError from "@jwn-js/common/ApiError";
+import type {ApiErrorMessage} from "@jwn-js/common/ApiError";
 
 /**
  * Options for validators
@@ -12,8 +13,10 @@ export interface ValidatorsOptions {
     statusCode?: number
 }
 
-type ValidationModel = Record<string, ValidatorsOptions|ValidationModel[]>
-type ValidationFilters = Array<string|Record<string, ValidationFilters>>
+type ValidationFilters = Array<string|Record<string, ValidationFilters>>;
+interface ValidationModel {
+    [x:string]: ValidationModel|ValidatorsOptions|any
+}
 
 /**
  * Default options for validation class
@@ -64,7 +67,7 @@ export const digits = true;
 export const number = true;
 export const equalTo = true;
 export const regexp = /\d/i;
-export const phone = true;
+export const uaPhone = true;
 export const depends: CallableFunction = (value: any, options: ValidatorsOptions) => true;
 export const rangedate: [Date, Date] = [new Date(), new Date()];
 
@@ -83,7 +86,7 @@ export default class Validation {
     /**
      * Default statusCode
      */
-    #defaultCode: number;
+    #defaultStatusCode: number;
 
     /**
      * Input params
@@ -96,47 +99,27 @@ export default class Validation {
     #validatedParams: Record<string| number, any>;
 
     /**
-     * Current param
-     */
-    #current:any;
-
-    /**
      * Validation model
      * {"name":{required, minlength: 3}}
      */
     #validationModel: ValidationModel;
 
     /**
-     * Current filters object
+     * Current field
+     * @private
      */
-    #filters:ValidationFilters;
+    #currentField: string;
 
     /**
      * @constructor
      * @param model - validation model
      * @param options - validation default options
      */
-    constructor(model: ValidationModel = {}, options: {isFieldNameMode?: boolean, defaultCode?: number} = {}) {
+    constructor(model: ValidationModel = {}, options: {isFieldNameMode?: boolean, defaultStatusCode?: number} = {}) {
         const opt = Object.assign({}, validationDefaultOption, options);
         this.#validationModel = model;
         this.#isFieldNameMode = <boolean>opt.isFieldNameMode;
-        this.#defaultCode = <number>opt.defaultCode;
-    }
-
-    /**
-     * For testing private methods
-     * @param name - name of method
-     * @param args - arguments
-     * @returns some private methods
-     */
-    __private__(name: string, ...args: Array<any>): any {
-
-        switch(name) {
-            case '#isKeyDeepInFilters':
-
-                // @ts-ignore
-                return this.#isKeyDeepInFilters(...args);
-        }
+        this.#defaultStatusCode = <number>opt.defaultStatusCode;
     }
 
     /**
@@ -149,21 +132,28 @@ export default class Validation {
 
     /**
      * Validate all object
-     * @param params - input object
+     * @param params - input object {"test": 123, "user": {"fio":"1", "phone":"2"}}
      * @param filters - array of keys if need
+     * @param deepKey - deep key
      * @returns
      * @throws ApiError
      */
-    validate(params: Record<string| number, any>, filters: Array<string|Record<string, Array<string>>> = []): boolean {
-        this.#filters = filters;
+    validate(
+        params: Record<string, any>,
+        filters: ValidationFilters = [],
+        deepKey: Array<string> = []
+    ): boolean {
+        const deepKeysDefault = [...deepKey];
 
         for(const key in params) {
+            deepKey.push(key);
             const value = params[key];
 
             if(isObject(value)) {
-                this.validate(value);
+                this.validate(value, filters, deepKey);
             } else {
-                this.#validateParam([key], value, {});
+                this.#validateParam(deepKey, value, filters);
+                deepKey = deepKeysDefault;
             }
         }
 
@@ -172,10 +162,66 @@ export default class Validation {
 
     /**
      * Validate param
-     * @param keys param object - user.fio ="test" => ["user", "fio"]
+     * @param deepKey array of keys
+     * @param value validated value
+     * @param filters validated filters
+     * @returns
      */
-    #validateParam(keys: Array<string>, value: any, validatedParams: Record<string| number, any>): void {
-        const isKeyInFilters = keys.reduce((ac, v) =>  ac[v], this.#filters);
+    #validateParam(
+        deepKey: Array<string>,
+        value: any,
+        filters: ValidationFilters
+    ): void {
+        this.#currentField = deepKey.join(".");
+
+        if(!this.isKeyDeepInFilters(deepKey, filters)) {
+            return;
+        }
+        const validators = this.#getDeepValidators(deepKey);
+
+        for(const validator in validators) {
+
+            if(!validators.hasOwnProperty(validator) || typeof this[validator] !== "function") {
+                throw new ApiError({
+                    message: `Row ${deepKey.join(".")}: validator ${validator} not implemented`,
+                    code: 2,
+                    statusCode: this.#defaultStatusCode
+                });
+            }
+            let options = validators[validator];
+            options = !options.param && (
+                typeof options === 'string'
+                || typeof options === 'number'
+                || typeof options === 'boolean'
+                || Array.isArray(options)
+                || options instanceof RegExp
+            ) ? {param: options} : options;
+
+            if((value !== '' && value !== undefined && value !== null && !isNaN(value)) || validator === 'required') {
+                this[validator](value, options);
+            }
+        }
+    }
+
+    /**
+     * Get ruls for deep Keys aray
+     * @param deepKeys
+     * @private
+     */
+    #getDeepValidators(deepKeys: Array<string>) {
+
+        return deepKeys.reduce((accumulator, key) => {
+
+            if(!accumulator.hasOwnProperty(key)) {
+                throw new ApiError({
+                    message: `There no validators for ${deepKeys.join(".")}`,
+                    code: 1,
+                    statusCode: this.#defaultStatusCode
+                });
+            }
+
+            return accumulator[key] as ValidationModel;
+        }, this.#validationModel);
     }
 
     /**
@@ -185,7 +231,7 @@ export default class Validation {
      * @param deep
      * @private
      */
-    #isKeyDeepInFilters(
+    isKeyDeepInFilters(
         deepKey: Array<string>,
         filters: ValidationFilters,
         deep: number = 0
@@ -203,7 +249,7 @@ export default class Validation {
             if(obj.hasOwnProperty(key)) {
 
                 if(deep < (deepKey.length - 1)) {
-                    isExists = this.#isKeyDeepInFilters(deepKey, obj[key], ++deep);
+                    isExists = this.isKeyDeepInFilters(deepKey, obj[key], ++deep);
                 } else {
                     isExists = true;
                 }
@@ -211,61 +257,6 @@ export default class Validation {
         }
 
         return isExists;
-    }
-
-    /**
-     * Validate level of params
-     * @param params {"user": {"fio":"", phone: ""}, isError: false}
-     * @param filters [] field that need validation - array - ["isError", {"user": ["fio", "phone"]}]
-     * @return {Boolean} - result of validation
-     */
-    #validateLevel(params: Record<string| number, any>, filters: Array<string|Record<string, Array<string>>> = []) {
-        this._params = params;
-        this._filteredParams = params;
-
-        // Get object with all filters or set all filters by key
-        if(filters.length) {
-            this._filteredParams = pickBy(params, (v, k) => filters.includes(k));
-            filters.map(v => this._filteredParams[v] = this._filteredParams[v] ?? undefined);
-        } else {
-            filters = Object.keys(params);
-        }
-
-        // Test if all rows has validators
-        let validationModelKey = Object.keys(this._validationModel);
-        Object.keys(this._filteredParams).map(paramKey => {
-            if(!validationModelKey.includes(paramKey)) {
-                throw new ApiError(`Param ${paramKey} not described in validations model`, 1, this.defaultCode);
-            }
-        });
-
-
-        // Validate all filteredParams
-        for(let key in this._filteredParams) {
-            let validators = this._validationModel[key];
-            let value = this._filteredParams[key];
-            this._current = key;
-
-            for(let validator in validators) {
-
-                if(typeof this[validator] !== "function") {
-                    throw new ApiError(`Row ${key}: validator ${validator} undefined`, 2, this.defaultCode);
-                }
-
-                let options = validators[validator];
-                options = !options.param && (
-                    typeof options === 'string'
-                    || typeof options === 'number'
-                    || typeof options === 'boolean'
-                    || Array.isArray(options)
-                    || options instanceof RegExp
-                ) ? {param: options} : options;
-
-                if((value !== '' && value !== undefined && value !== null) || validator === 'required') {
-                    this[validator](value, options);
-                }
-            }
-        }
     }
 
     /**
@@ -285,6 +276,30 @@ export default class Validation {
     }
 
     /**
+     * Adapt options to ErrorMessage
+     * @param options
+     * @param defaultMessage
+     * @param defaultCode
+     * @param replace
+     * @private
+     */
+    #adaptToErrorMessage(
+        options: ValidatorsOptions,
+        defaultMessage: string,
+        defaultCode: number,
+        replace: Array<string> = []
+    ): ApiErrorMessage {
+        const errorMessageObj =  Object.assign({
+            message: defaultMessage,
+            code: defaultCode,
+            statusCode: this.#defaultStatusCode
+        }, options);
+        errorMessageObj.message = this.#messageReplace(errorMessageObj.message, replace);
+
+        return errorMessageObj;
+    }
+
+    /**
      * Required
      * @param value - input value
      * @param options - validator`s options
@@ -293,9 +308,8 @@ export default class Validation {
      */
     required(value: any, options: ValidatorsOptions): void {
 
-        if(value) {
-            options.message = options.message ?? defaultMessages.required;
-            throw new ApiError(this._messageReplace(options.message), 3, this.#defaultCode);
+        if(!value) {
+            throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.required, 4));
         }
     }
 
@@ -304,11 +318,10 @@ export default class Validation {
      * @param value - input value
      * @param options - validator`s options
      */
-    boolean(value, options) {
+    boolean(value: any, options: ValidatorsOptions) {
 
         if(typeof value !== "boolean") {
-            options['message'] = options['message'] ? options['message'] : defaultMessages['boolean'];
-            throw new ApiError(this._messageReplace(options['message']), 5, this.defaultCode);
+            throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.boolean, 5));
         }
     }
 
@@ -317,12 +330,13 @@ export default class Validation {
      * @param value - input value
      * @param options - validator`s options
      */
-    minlength(value, options) {
+    minlength(value: any, options: ValidatorsOptions) {
 
         if(value.length < options.param) {
-            options['message'] = options['message'] ? options['message'] : defaultMessages['minlength'];
-            throw new ApiError(this._messageReplace(options['message'], [options.param]), 6, this.defaultCode);
-        };
+            throw new ApiError(
+                this.#adaptToErrorMessage(options, defaultMessages.minlength, 6, [options.param])
+            );
+        }
     }
 
     /**
@@ -330,11 +344,12 @@ export default class Validation {
      * @param value - input value
      * @param options - validator`s options
      */
-    maxlength(value, options) {
+    maxlength(value: any, options: ValidatorsOptions) {
 
         if(value.length > options.param) {
-            options['message'] = options['message'] ? options['message'] : defaultMessages['maxlength'];
-            throw new ApiError(this._messageReplace(options['message'], [options.param]), 7, this.defaultCode);
+            throw new ApiError(
+                this.#adaptToErrorMessage(options, defaultMessages.maxlength, 7, [options.param])
+            );
         }
     }
 
@@ -344,15 +359,20 @@ export default class Validation {
      * @param options - validator`s options
      * @return {Boolean}
      */
-    rangelength(value, options) {
+    rangelength(value: any, options: ValidatorsOptions) {
 
         if(!Array.isArray(options.param)) {
-            throw new ApiError(this._messageReplace(`Options for rangelength must be array`));
+            throw new ApiError({
+                message: `options for rangelength should be an array`,
+                code: 8,
+                statusCode: this.#defaultStatusCode
+            });
         }
 
         if(value.length < options.param[0] || value.length > options.param[1]) {
-            options['message'] = options['message'] ? options['message'] : defaultMessages['rangelength'];
-            throw new ApiError(this._messageReplace(options['message'], options.param), 8, this.defaultCode);
+            throw new ApiError(
+                this.#adaptToErrorMessage(options, defaultMessages.rangelength, 9, [...options.param])
+            );
         }
     }
 
@@ -362,16 +382,21 @@ export default class Validation {
      * @param options - validator`s options
      * @return {Boolean}
      */
-    min(value, options) {
+    min(value: any, options: ValidatorsOptions) {
 
         if(typeof options.param !== "number") {
-            throw new ApiError(this._messageReplace(`Options for min must be number`));
+            throw new ApiError({
+                message: `options for min should be should be a number`,
+                code: 10,
+                statusCode: this.#defaultStatusCode
+            });
         }
 
         if(value < options.param) {
-            options['message'] = options['message'] ? options['message'] : defaultMessages['min'];
-            throw new ApiError(this._messageReplace(options['message'], [options.param]), 9, this.defaultCode);
-        };
+            throw new ApiError(
+                this.#adaptToErrorMessage(options, defaultMessages.min, 11, [String(options.param)])
+            );
+        }
     }
 
     /**
@@ -380,16 +405,21 @@ export default class Validation {
      * @param options - validator`s options
      * @return {Boolean}
      */
-    max(value, options) {
+    max(value: any, options: ValidatorsOptions) {
 
         if(typeof options.param !== "number") {
-            throw new ApiError(this._messageReplace(`Options for min must be number`));
+            throw new ApiError({
+                message: `options for max should be should be a number`,
+                code: 12,
+                statusCode: this.#defaultStatusCode
+            });
         }
 
         if(value > options.param) {
-            options['message'] = options['message'] ? options['message'] : defaultMessages['max'];
-            throw new ApiError(this._messageReplace(options['message'], [options.param]), 10, this.defaultCode);
-        };
+            throw new ApiError(
+                this.#adaptToErrorMessage(options, defaultMessages.max, 13, [String(options.param)])
+            );
+        }
     }
 
     /**
@@ -398,15 +428,20 @@ export default class Validation {
      * @param options - validator`s options
      * @return {Boolean}
      */
-    range(value, options) {
+    range(value: any, options: ValidatorsOptions) {
 
         if(!Array.isArray(options.param)) {
-            throw new ApiError(this._messageReplace(`Options for range length must be array`), 11, this.defaultCode);
+            throw new ApiError({
+                message: `options for range should be should be an array`,
+                code: 12,
+                statusCode: this.#defaultStatusCode
+            });
         }
 
         if(value < options.param[0] || value > options.param[1]) {
-            options['message'] = options['message'] ? options['message'] : defaultMessages['range'];
-            throw new ApiError(this._messageReplace(options['message'], options.param), 12, this.defaultCode);
+            throw new ApiError(
+                this.#adaptToErrorMessage(options, defaultMessages.range, 15, [...options.param])
+            );
         }
     }
 
@@ -416,12 +451,11 @@ export default class Validation {
      * @param options - validator`s options
      * @return {Boolean}
      */
-    email(value, options) {
-        let regexp = /^[a-zA-Z0-9.!#$%&\'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/i;
+    email(value: any, options: ValidatorsOptions) {
+        const regexp = /^[a-zA-Z0-9.!#$%&\'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/i;
 
         if(!regexp.test(value)) {
-            options['message'] = options['message'] ? options['message'] : defaultMessages['email'];
-            throw new ApiError(this._messageReplace(options['message'], []), 13, this.defaultCode);
+            throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.email, 16));
         }
     }
 
@@ -431,12 +465,11 @@ export default class Validation {
      * @param options - validator`s options
      * @return {Boolean}
      */
-    url(value, options) {
-        let regexp = /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z0-9]-*)*[a-z0-9]+)(?:\.(?:[a-z0-9]-*)*[a-z0-9]+)*(?:\.(?:[a-z]{2,})).?)(?::\d{2,5})?(?:[\/?#]\S*)?$/i
+    url(value: any, options: ValidatorsOptions) {
+        const regexp = /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z0-9]-*)*[a-z0-9]+)(?:\.(?:[a-z0-9]-*)*[a-z0-9]+)*(?:\.(?:[a-z]{2,})).?)(?::\d{2,5})?(?:[\/?#]\S*)?$/i
 
         if(!regexp.test(value)) {
-            options['message'] = options['message'] ? options['message'] : defaultMessages['url'];
-            throw new ApiError(this._messageReplace(options['message'], []), 14, this.defaultCode);
+            throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.url, 17));
         }
     }
 
@@ -448,12 +481,11 @@ export default class Validation {
      *
      * @return {Boolean}
      */
-    dateISO(value, options) {
-        let regexp = /^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/i;
+    dateISO(value: any, options: ValidatorsOptions) {
+        const regexp = /^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/i;
 
         if(!regexp.test(value)) {
-            options['message'] = options['message'] ? options['message'] : defaultMessages['dateISO'];
-            throw new ApiError(this._messageReplace(options['message'], []), 15, this.defaultCode);
+            throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.dateISO, 18));
         }
     }
 
@@ -463,14 +495,12 @@ export default class Validation {
      * @param {Object} options
      * @return {Boolean}
      */
-    digits(value, options) {
+    digits(value: any, options: ValidatorsOptions) {
 
         if(typeof value !== "number" || value !== Math.round(value)) {
-            options['message'] = options['message'] ? options['message'] : defaultMessages['digits'];
-            throw new ApiError(this._messageReplace(options['message'], []), 16, this.defaultCode);
+            throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.digits, 19));
         }
     }
-
 
     /**
      * Check number
@@ -478,11 +508,10 @@ export default class Validation {
      * @param options - validator`s options
      * @return {Boolean}
      */
-    number(value, options) {
+    number(value: any, options: ValidatorsOptions) {
 
         if(typeof value !== "number") {
-            options['message'] = options['message'] ? options['message'] : defaultMessages['number'];
-            throw new ApiError(this._messageReplace(options['message'], []), 16, this.defaultCode);
+            throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.number, 20));
         }
     }
 
@@ -492,11 +521,10 @@ export default class Validation {
      * @param options - validator`s options
      * @return {Boolean}
      */
-    equalTo(value, options) {
+    equalTo(value: any, options: ValidatorsOptions) {
 
         if(value !== options.param) {
-            options['message'] = options['message'] ? options['message'] : defaultMessages['equalTo'];
-            throw new ApiError(this._messageReplace(options['message'], []), 17, this.defaultCode);
+            throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.equalTo, 21));
         }
     }
 
@@ -506,15 +534,18 @@ export default class Validation {
      * @param options - validator`s options
      * @return {Boolean}
      */
-    regexp(value, options) {
+    regexp(value: any, options: ValidatorsOptions) {
 
         if(!(options.param instanceof RegExp)) {
-            throw new ApiError(this._messageReplace(`Options for regexp must be regexp`), 18, this.defaultCode);
+            throw new ApiError({
+                message: `options for regexp should be should be a regex`,
+                code: 22,
+                statusCode: this.#defaultStatusCode
+            });
         }
 
         if(!options.param.test(value)) {
-            options['message'] = options['message'] ? options['message'] : defaultMessages['regexp'];
-            throw new ApiError(this._messageReplace(options['message'], []), 19, this.defaultCode);
+            throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.regexp, 22));
         }
     }
 
@@ -524,12 +555,11 @@ export default class Validation {
      * @param options - validator`s options
      * @return {Boolean}
      */
-    phone(value, options) {
-        let regexp = /^\+380[5-9]{1}[0-9]{1}[0-9]{3}[0-9]{2}[0-9]{2}$/i;
+    uaPhone(value: any, options: ValidatorsOptions) {
+        const regexp = /^\+380[5-9]{1}[0-9]{1}[0-9]{3}[0-9]{2}[0-9]{2}$/i;
 
         if(!regexp.test(value)) {
-            options['message'] = options['message'] ? options['message'] : defaultMessages['phone'];
-            throw new ApiError(this._messageReplace(options['message'], []), 20, this.defaultCode);
+            throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.phone, 23));
         }
     }
 
@@ -539,13 +569,17 @@ export default class Validation {
      * @param options - validator`s options
      * @return {Boolean}
      */
-    rangedate(value, options) {
+    rangedate(value: any, options: ValidatorsOptions) {
 
         if(!Array.isArray(options.param)) {
-            throw new ApiError(this._messageReplace(`Options for range length must be array`), 21, this.defaultCode);
+            throw new ApiError({
+                message: `options for rangedate should be should be an array`,
+                code: 24,
+                statusCode: this.#defaultStatusCode
+            });
         }
 
-        let date = new Date(value);
+        const date = new Date(value);
         let isValid = true;
 
         if(options.param[0] && date < new Date(options.param[0])) {
@@ -557,8 +591,9 @@ export default class Validation {
         }
 
         if(!isValid) {
-            options['message'] = options['message'] ? options['message'] : defaultMessages['rangedate'];
-            throw new ApiError(this._messageReplace(options['message'], options.param), 22, this.defaultCode);
+            throw new ApiError(
+                this.#adaptToErrorMessage(options, defaultMessages.rangedate, 25, [...options.param])
+            );
         }
     }
 
@@ -568,14 +603,20 @@ export default class Validation {
      * @param options - validator`s options
      * @return {Boolean}
      */
-    depends(value, options) {
-        if(!typeof options.param !== "function") {
-            throw new ApiError(this._messageReplace(`Options for depends must be function`), 23, this.defaultCode);
+    depends(value: any, options: ValidatorsOptions) {
+
+        if(typeof options.param !== "function") {
+            throw new ApiError({
+                message: `options depends should be should be a function`,
+                code: 24,
+                statusCode: this.#defaultStatusCode
+            });
         }
 
         if(!options.param(value, options)) {
-            options['message'] = options['message'] ? options['message'] : defaultMessages['depends'];
-            throw new ApiError(this._messageReplace(options['message'], options.param), 24, this.defaultCode);
+            throw new ApiError(
+                this.#adaptToErrorMessage(options, defaultMessages.depends, 25)
+            );
         }
     }
 
@@ -587,8 +628,6 @@ export default class Validation {
     #messageReplace(message: string, arrReplace: Array<string> = []) {
         arrReplace.map(v => message = message.replace('!%', v));
 
-        message = this._isFieldNameMode ? `${this._current}: ${message}` : message;
-
-        return message;
+        return this.#isFieldNameMode ? `${this.#currentField}: ${message}` : message;
     }
 }
