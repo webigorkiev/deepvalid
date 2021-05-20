@@ -1,4 +1,5 @@
 import pickBy from "@jwn-js/easy-ash/pickBy";
+import isObject from "@jwn-js/easy-ash/isObject";
 import ApiError from "@jwn-js/common/ApiError";
 
 /**
@@ -12,6 +13,7 @@ export interface ValidatorsOptions {
 }
 
 type ValidationModel = Record<string, ValidatorsOptions|ValidationModel[]>
+type ValidationFilters = Array<string|Record<string, ValidationFilters>>
 
 /**
  * Default options for validation class
@@ -91,7 +93,7 @@ export default class Validation {
     /**
      * Only params that has to validate
      */
-    #validatedParams: Record<string, any>;
+    #validatedParams: Record<string| number, any>;
 
     /**
      * Current param
@@ -103,6 +105,11 @@ export default class Validation {
      * {"name":{required, minlength: 3}}
      */
     #validationModel: ValidationModel;
+
+    /**
+     * Current filters object
+     */
+    #filters:ValidationFilters;
 
     /**
      * @constructor
@@ -117,6 +124,22 @@ export default class Validation {
     }
 
     /**
+     * For testing private methods
+     * @param name
+     * @param args
+     * @returns some private methods
+     */
+    __private__(name: string, ...args: Array<any>): any {
+
+        switch(name) {
+            case '#isKeyDeepInFilters':
+
+                // @ts-ignore
+                return this.#isKeyDeepInFilters(...args);
+        }
+    }
+
+    /**
      * Set validation model
      * @param model - validations model ruls
      */
@@ -125,12 +148,78 @@ export default class Validation {
     }
 
     /**
-     * Validate params
+     * Validate all object
+     * @param params - input object
+     * @param filters - array of keys if need
+     * @returns
+     * @throws ApiError
+     */
+    validate(params: Record<string| number, any>, filters: Array<string|Record<string, Array<string>>> = []): boolean {
+        this.#filters = filters;
+
+        for(const key in params) {
+            const value = params[key];
+
+            if(isObject(value)) {
+                this.validate(value);
+            } else {
+                this.#validateParam([key], value, {});
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Validate param
+     * @param keys param object - user.fio ="test" => ["user", "fio"]
+     */
+    #validateParam(keys: Array<string>, value: any, validatedParams: Record<string| number, any>): void {
+        const isKeyInFilters = keys.reduce((ac, v) =>  ac[v], this.#filters);
+    }
+
+    /**
+     * Check is key in filters
+     * @param deepKey
+     * @param filters
+     * @param deep
+     * @private
+     */
+    #isKeyDeepInFilters(
+        deepKey: Array<string>,
+        filters: ValidationFilters,
+        deep: number = 0
+    ): boolean {
+        const key = deepKey[deep];
+
+        if(!key) {
+            return false;
+        }
+
+        let isExists = filters.includes(key);
+        const objects = filters.filter(v => isObject(v));
+
+        for(const obj of objects) {
+            if(obj.hasOwnProperty(key)) {
+
+                if(deep < (deepKey.length - 1)) {
+                    isExists = this.#isKeyDeepInFilters(deepKey, obj[key], ++deep);
+                } else {
+                    isExists = true;
+                }
+            }
+        }
+
+        return isExists;
+    }
+
+    /**
+     * Validate level of params
      * @param params {"user": {"fio":"", phone: ""}, isError: false}
      * @param filters [] field that need validation - array - ["isError", {"user": ["fio", "phone"]}]
      * @return {Boolean} - result of validation
      */
-    validate(params: Record<string| number, any>, filters: Array<string|Record<string, Array<string>>> = []) {
+    #validateLevel(params: Record<string| number, any>, filters: Array<string|Record<string, Array<string>>> = []) {
         this._params = params;
         this._filteredParams = params;
 

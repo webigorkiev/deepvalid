@@ -4,6 +4,7 @@
   "version": "0.0.2",
   "description": "Template for @jwn-js packages",
   "main": "dist/index.js",
+  "types": "src/index.ts",
   "scripts": {
     "app": "concurrently \"npm run serve\" \"nodemon ./dist/index-dev.js\"",
     "serve": "webpack --config ./webpack.config.js --watch",
@@ -30,7 +31,7 @@
     "esbuild-loader": "^2.13.0",
     "eslint": "^7.26.0",
     "mocha": "^8.4.0",
-    "mochapack": "^2.1.0",
+    "mochapack": "^2.1.1",
     "nodemon": "^2.0.7",
     "ts-mocha": "^8.0.0",
     "typedoc": "^0.20.36",

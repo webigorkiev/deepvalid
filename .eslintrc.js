@@ -32,6 +32,7 @@ module.exports = {
                 "for": {"after": false},
                 "while": {"after": false},
                 "catch": {"after": false},
+                "switch": {"after": false},
             }
         }],
 
@@ -47,6 +48,7 @@ module.exports = {
         "@typescript-eslint/no-var-requires": "off",
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/ban-ts-comment": "off",
-        "@typescript-eslint/explicit-module-boundary-types": "off"
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/no-unused-vars": "off"
     },
 };
