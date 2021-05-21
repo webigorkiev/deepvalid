@@ -1,9 +1,28 @@
 import {expect} from "chai";
-
-import {Validation} from "@/index"
+import ApiError from "@jwn-js/common/ApiError";
+import {Validation, required} from "@/index"
 
 describe("@jwn-js/validation", () => {
     const validation = new Validation();
+    validation.setModel({
+        test: {required}
+    });
+    const inputParams = {
+        test: "test"
+    };
+
+    describe("Validate single param, filters - default, model: {test: {required}}", () => {
+        it(`{} => ApiError`, () => {
+            expect(() => {
+                validation.validate({})
+            }).to.throw(ApiError);
+        })
+        it(`{test: "test"}`, () => {
+            expect(() => {
+                validation.validate({test: "test"})
+            }).not.throw(ApiError);
+        })
+    });
 
     describe("::isKeyInFilters", () => {
         it("finds 1 level deep key in 1 level", () => {
@@ -38,5 +57,6 @@ describe("@jwn-js/validation", () => {
             const result = validation.isKeyDeepInFilters(["user", "absent"], ["test", {"user": ["fio", "phone", {"address":["flat", "street"]}]}]);
             expect(result).to.eql(false);
         });
-    })
-})
+    });
+
+});

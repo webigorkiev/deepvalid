@@ -1,4 +1,3 @@
-import pickBy from "@jwn-js/easy-ash/pickBy";
 import isObject from "@jwn-js/easy-ash/isObject";
 import ApiError from "@jwn-js/common/ApiError";
 import type {ApiErrorMessage} from "@jwn-js/common/ApiError";
@@ -13,7 +12,14 @@ export interface ValidatorsOptions {
     statusCode?: number
 }
 
+/**
+ * Filters that show - what need validate
+ */
 type ValidationFilters = Array<string|Record<string, ValidationFilters>>;
+
+/**
+ * Validation model
+ */
 interface ValidationModel {
     [x:string]: ValidationModel|ValidatorsOptions|any
 }
@@ -28,11 +34,13 @@ const validationDefaultOption = {
 
 /**
  * Validators default messages
- * !% replase with values
+ * !% replace with values
  */
 const defaultMessages = {
     required:  "the value is empty",
     boolean: "the value not boolean value",
+    array: "the value not array value",
+    object: "the value not object value",
     minlength: "the number of characters in the line is less !%",
     maxlength: "the number of characters in the line is more !%",
     rangelength: "the number of characters in a line outside the range from !% to !% символов",
@@ -52,24 +60,26 @@ const defaultMessages = {
 };
 
 // Validators with default options
-export const required = true;
-export const boolean = true;
-export const minlength = 0;
-export const maxlength = 65535;
-export const rangelength = [0, 65535];
-export const range = [0, 65535];
-export const min = 0;
-export const max = 65535;
-export const email = true;
-export const url = true;
-export const dateISO = true;
-export const digits = true;
-export const number = true;
-export const equalTo = true;
-export const regexp = /\d/i;
-export const uaPhone = true;
-export const depends: CallableFunction = (value: any, options: ValidatorsOptions) => true;
-export const rangedate: [Date, Date] = [new Date(), new Date()];
+export const required = {param: true};
+export const boolean = {param: true};
+export const array = {param: true};
+export const object = {param: true};
+export const minlength = {param: 0};
+export const maxlength = {param: 65535};
+export const rangelength = {param: [0, 255]};
+export const range = {param: [0, 65535]};
+export const min = {param: 0};
+export const max = {param: 65535};
+export const email = {param: true};
+export const url = {param: true};
+export const dateISO = {param: true};
+export const digits = {param: true};
+export const number = {param: true};
+export const equalTo = {param: true};
+export const regexp = {param: /\d/i};
+export const uaPhone = {param: true};
+export const depends = {param: (value: any, options: ValidatorsOptions) => true};
+export const rangedate = {param: [new Date(), new Date()]};
 
 /**
  * @class Validations
@@ -134,30 +144,95 @@ export default class Validation {
      * Validate all object
      * @param params - input object {"test": 123, "user": {"fio":"1", "phone":"2"}}
      * @param filters - array of keys if need
-     * @param deepKey - deep key
      * @returns
      * @throws ApiError
      */
     validate(
         params: Record<string, any>,
+        filters: ValidationFilters = []
+    ): boolean {
+        const schema = this.#cutTwolastLevel(this.#validationModel);
+
+        if(!schema) {
+            throw new ApiError({
+                message: `invalid validation model`,
+                code: 1,
+                statusCode: this.#defaultStatusCode
+            });
+        }
+
+        return this.#validateRecurcive(schema, params, filters);
+    }
+
+    /**
+     * Validate all object
+     * @param params - input object {"test": 123, "user": {"fio":"1", "phone":"2"}}
+     * @param filters - array of keys if need
+     * @param deepKey - deep key
+     * @param schema - deep key
+     * @returns
+     * @throws ApiError
+     */
+    #validateRecurcive(
+        schema: Record<string, any>,
+        params: Record<string, any>,
         filters: ValidationFilters = [],
-        deepKey: Array<string> = []
+        deepKey: Array<string> = [],
     ): boolean {
         const deepKeysDefault = [...deepKey];
 
-        for(const key in params) {
-            deepKey.push(key);
-            const value = params[key];
+        for(const key in schema) {
 
-            if(isObject(value)) {
-                this.validate(value, filters, deepKey);
+            deepKey.push(key);
+            const value = params[key] || undefined;
+            this.#validateParam(deepKey, value, filters);
+
+            if(isObject(schema[key])) {
+                this.#validateRecurcive(schema[key], value, filters, deepKey);
             } else {
-                this.#validateParam(deepKey, value, filters);
                 deepKey = deepKeysDefault;
             }
         }
 
         return true;
+    }
+
+    /**
+     * Cut last to levels
+     * @param obj - validation model
+     * @returns validation schema
+     * @private
+     */
+    #cutTwolastLevel(obj: ValidationModel):Record<string, any>|undefined {
+        return this.#lastLevelCut(this.#lastLevelCut(obj));
+    }
+
+    /**
+     * Cut last level of object and replace by undefined
+     * @param obj - input object (ValidationModel)
+     * @param output - output
+     * @private
+     */
+    #lastLevelCut(obj: Record<string, any>|undefined, output = {}):Record<string, any>|undefined  {
+        if(!obj) {
+            return undefined;
+        }
+
+        for(const key in obj as Record<string, any>) {
+
+            if(obj.hasOwnProperty(key)) {
+                const value = obj[key];
+
+                if(isObject(value)) {
+                    output[key] = this.#lastLevelCut(value);
+                } else {
+
+                    return undefined;
+                }
+            }
+        }
+
+        return output;
     }
 
     /**
@@ -174,7 +249,7 @@ export default class Validation {
     ): void {
         this.#currentField = deepKey.join(".");
 
-        if(!this.isKeyDeepInFilters(deepKey, filters)) {
+        if(!this.isKeyDeepInFilters(deepKey, filters) && filters.length) {
             return;
         }
         const validators = this.#getDeepValidators(deepKey);
@@ -188,14 +263,7 @@ export default class Validation {
                     statusCode: this.#defaultStatusCode
                 });
             }
-            let options = validators[validator];
-            options = !options.param && (
-                typeof options === 'string'
-                || typeof options === 'number'
-                || typeof options === 'boolean'
-                || Array.isArray(options)
-                || options instanceof RegExp
-            ) ? {param: options} : options;
+            const options = validators[validator];
 
             if((value !== '' && value !== undefined && value !== null && !isNaN(value)) || validator === 'required') {
                 this[validator](value, options);
@@ -203,9 +271,10 @@ export default class Validation {
         }
     }
 
+
     /**
      * Get ruls for deep Keys aray
-     * @param deepKeys
+     * @param deepKeys - keys array
      * @private
      */
     #getDeepValidators(deepKeys: Array<string>) {
@@ -226,9 +295,9 @@ export default class Validation {
 
     /**
      * Check is key in filters
-     * @param deepKey
-     * @param filters
-     * @param deep
+     * @param deepKey keys array
+     * @param filters - filters array
+     * @param deep - deep range
      * @private
      */
     isKeyDeepInFilters(
@@ -277,10 +346,10 @@ export default class Validation {
 
     /**
      * Adapt options to ErrorMessage
-     * @param options
-     * @param defaultMessage
-     * @param defaultCode
-     * @param replace
+     * @param options - validator options
+     * @param defaultMessage - default string message
+     * @param defaultCode - default code
+     * @param replace - addition data for replace !% in message
      * @private
      */
     #adaptToErrorMessage(
@@ -322,6 +391,30 @@ export default class Validation {
 
         if(typeof value !== "boolean") {
             throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.boolean, 5));
+        }
+    }
+
+    /**
+     * array
+     * @param value - input value
+     * @param options - validator`s options
+     */
+    array(value: any, options: ValidatorsOptions) {
+
+        if(!Array.isArray(value)) {
+            throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.array, 5));
+        }
+    }
+
+    /**
+     * object
+     * @param value - input value
+     * @param options - validator`s options
+     */
+    object(value: any, options: ValidatorsOptions) {
+
+        if(!isObject(value)) {
+            throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.object, 5));
         }
     }
 
