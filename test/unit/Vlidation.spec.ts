@@ -1,34 +1,40 @@
 import {expect} from "chai";
 import ApiError from "@jwn-js/common/ApiError";
 import {Validation, required, uaPhone, digits} from "@/index"
-import cloneDeep from "@jwn-js/easy-ash/cloneDeep"
+import cloneDeep from "@jwn-js/easy-ash/cloneDeep";
+
+// https://runebook.dev/ru/docs/chai/-index-
 
 describe("@jwn-js/validation", () => {
     const validation = new Validation();
-    validation.setModel({
-        test: {required},
-        user: {
-            fio: {required},
-            phone: {required, uaPhone},
-            address: {
-                street: {required},
-                flat: {required, digits}
-            }
-        }
-    });
-    const inputParams = {
-        test: "test",
-        user: {
-            fio: "Jws Js J$",
-            phone: "+380931001028",
-            address: {
-                street: "Love Street",
-                flat: 45
-            }
-        }
-    };
 
     describe("Validate single param, filters - default, model: {test: {required}}", () => {
+        validation.setModel({
+            test: {required},
+            user: {
+                fio: {required},
+                phone: {required, uaPhone},
+                address: {
+                    street: {required},
+                    flat: {
+                        required,
+                        digits
+                    }
+                }
+            }
+        });
+        const inputParams = {
+            test: "test",
+            user: {
+                fio: "Jws Js J$",
+                phone: "+380931001028",
+                address: {
+                    street: "Love Street",
+                    flat: 45
+                }
+            }
+        };
+
         it(`{} => ApiError`, () => {
             expect(() => {
                 validation.validate({})
@@ -43,6 +49,13 @@ describe("@jwn-js/validation", () => {
             expect(() => {
                 const input = cloneDeep(inputParams);
                 input.user.address.flat = "10f";
+                validation.validate(input)
+            }).throw(ApiError);
+        })
+        it(`delete 2 level param`, () => {
+            expect(() => {
+                const input = cloneDeep(inputParams);
+                delete(input.user.phone)
                 validation.validate(input)
             }).throw(ApiError);
         })
