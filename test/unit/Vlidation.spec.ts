@@ -7,22 +7,22 @@ import cloneDeep from "@jwn-js/easy-ash/cloneDeep";
 
 describe("@jwn-js/validation", () => {
     const validation = new Validation();
-
-    describe("Validate single param, filters - default, model: {test: {required}}", () => {
-        validation.setModel({
-            test: {required},
-            user: {
-                fio: {required},
-                phone: {required, uaPhone},
-                address: {
-                    street: {required},
-                    flat: {
-                        required,
-                        digits
-                    }
+    validation.setModel({
+        test: {required},
+        user: {
+            fio: {required},
+            phone: {required, uaPhone},
+            address: {
+                street: {required},
+                flat: {
+                    required,
+                    digits
                 }
             }
-        });
+        }
+    });
+
+    describe("Validate single param, filters - default, model: {test: {required}}", () => {
         const inputParams = {
             test: "test",
             user: {
@@ -95,5 +95,16 @@ describe("@jwn-js/validation", () => {
             expect(result).to.eql(false);
         });
     });
+
+    describe("Validators tests with filters", () => {
+        it("required", () => {
+            expect(() => {
+                validation.validate({}, ["test"])
+            }).throw(ApiError);
+            expect(() => {
+                validation.validate({test: "test"}, ["test"])
+            }).not.throw(ApiError);
+        })
+    })
 
 });
