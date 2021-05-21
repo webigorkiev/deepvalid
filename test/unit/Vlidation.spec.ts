@@ -1,26 +1,50 @@
 import {expect} from "chai";
 import ApiError from "@jwn-js/common/ApiError";
-import {Validation, required} from "@/index"
+import {Validation, required, uaPhone, digits} from "@/index"
+import cloneDeep from "@jwn-js/easy-ash/cloneDeep"
 
 describe("@jwn-js/validation", () => {
     const validation = new Validation();
     validation.setModel({
-        test: {required}
+        test: {required},
+        user: {
+            fio: {required},
+            phone: {required, uaPhone},
+            address: {
+                street: {required},
+                flat: {required, digits}
+            }
+        }
     });
     const inputParams = {
-        test: "test"
+        test: "test",
+        user: {
+            fio: "Jws Js J$",
+            phone: "+380931001028",
+            address: {
+                street: "Love Street",
+                flat: 45
+            }
+        }
     };
 
     describe("Validate single param, filters - default, model: {test: {required}}", () => {
         it(`{} => ApiError`, () => {
             expect(() => {
                 validation.validate({})
-            }).to.throw(ApiError);
+            }).throw(ApiError);
         })
-        it(`{test: "test"}`, () => {
+        it(`right input params`, () => {
             expect(() => {
-                validation.validate({test: "test"})
+                validation.validate(inputParams)
             }).not.throw(ApiError);
+        })
+        it(`1 wrong deep param`, () => {
+            expect(() => {
+                const input = cloneDeep(inputParams);
+                input.user.address.flat = "10f";
+                validation.validate(input)
+            }).throw(ApiError);
         })
     });
 

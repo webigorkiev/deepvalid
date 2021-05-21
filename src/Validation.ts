@@ -179,18 +179,14 @@ export default class Validation {
         filters: ValidationFilters = [],
         deepKey: Array<string> = [],
     ): boolean {
-        const deepKeysDefault = [...deepKey];
 
         for(const key in schema) {
-
-            deepKey.push(key);
             const value = params[key] || undefined;
-            this.#validateParam(deepKey, value, filters);
 
             if(isObject(schema[key])) {
-                this.#validateRecurcive(schema[key], value, filters, deepKey);
+                this.#validateRecurcive(schema[key], value, filters, [...deepKey, key]);
             } else {
-                deepKey = deepKeysDefault;
+                this.#validateParam([...deepKey, key], value, filters);
             }
         }
 
@@ -265,12 +261,11 @@ export default class Validation {
             }
             const options = validators[validator];
 
-            if((value !== '' && value !== undefined && value !== null && !isNaN(value)) || validator === 'required') {
+            if((value !== '' && value !== undefined && value !== null && !Number.isNaN(value)) || validator === 'required') {
                 this[validator](value, options);
             }
         }
     }
-
 
     /**
      * Get ruls for deep Keys aray
