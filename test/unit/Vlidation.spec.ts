@@ -1,7 +1,14 @@
 import {expect} from "chai";
 import ApiError from "@jwn-js/common/ApiError";
-import {Validation, required, uaPhone, digits} from "@/index"
-import cloneDeep from "@jwn-js/easy-ash/cloneDeep";
+import {
+    Validation,
+    required,
+    boolean,
+    array,
+    object,
+    uaPhone,
+    digits
+} from "@/index"
 
 // https://runebook.dev/ru/docs/chai/-index-
 
@@ -47,16 +54,33 @@ describe("@jwn-js/validation", () => {
         })
         it(`1 wrong deep param`, () => {
             expect(() => {
-                const input = cloneDeep(inputParams);
-                input.user.address.flat = "10f";
-                validation.validate(input)
+                const inputParams = {
+                    test: "test",
+                    user: {
+                        fio: "Jws Js J$",
+                        phone: "+380931001028",
+                        address: {
+                            street: "Love Street",
+                            flat: "10f"
+                        }
+                    }
+                };
+                validation.validate(inputParams)
             }).throw(ApiError);
         })
         it(`delete 2 level param`, () => {
             expect(() => {
-                const input = cloneDeep(inputParams);
-                delete(input.user.phone)
-                validation.validate(input)
+                const inputParams = {
+                    test: "test",
+                    user: {
+                        fio: "Jws Js J$",
+                        address: {
+                            street: "Love Street",
+                            flat: 45
+                        }
+                    }
+                };
+                validation.validate(inputParams)
             }).throw(ApiError);
         })
     });
@@ -97,14 +121,106 @@ describe("@jwn-js/validation", () => {
     });
 
     describe("Validators tests with filters", () => {
-        it("required", () => {
-            expect(() => {
-                validation.validate({}, ["test"])
-            }).throw(ApiError);
-            expect(() => {
-                validation.validate({test: "test"}, ["test"])
-            }).not.throw(ApiError);
+
+        describe(`required`, () => {
+            it("required string", () => {
+                expect(() => {
+                    validation.validate({test: "test"}, ["test"])
+                }).not.throw(ApiError);
+            });
+            it("required 0", () => {
+                expect(() => {
+                    validation.validate({test: 0}, ["test"])
+                }).not.throw(ApiError);
+            });
+            it(`required "0"`, () => {
+                expect(() => {
+                    validation.validate({test: "0"}, ["test"])
+                }).not.throw(ApiError);
+            });
+            it("required false", () => {
+                expect(() => {
+                    validation.validate({test: false}, ["test"])
+                }).not.throw(ApiError);
+            });
+            it("required {}", () => {
+                expect(() => {
+                    validation.validate({}, ["test"])
+                }).throw(ApiError);
+            })
+            it(`required ""`, () => {
+                expect(() => {
+                    validation.validate({test: ""}, ["test"])
+                }).not.throw(ApiError);
+            })
+            it("required undefined", () => {
+                expect(() => {
+                    validation.validate({test: undefined}, ["test"])
+                }).throw(ApiError);
+            });
+            it("required null", () => {
+                expect(() => {
+                    validation.validate({test: null}, ["test"])
+                }).throw(ApiError);
+            });
+            it("required Nan", () => {
+                expect(() => {
+                    validation.validate({test: NaN}, ["test"])
+                }).throw(ApiError);
+            });
+        });
+
+        describe(`boolean`, () => {
+            const validation = new Validation({test: {boolean}});
+            it("boolean true", () => {
+                expect(() => {
+                    validation.validate({test: true}, ["test"])
+                }).not.throw(ApiError);
+            });
+            it("boolean false", () => {
+                expect(() => {
+                    validation.validate({test: false}, ["test"])
+                }).not.throw(ApiError);
+            });
+            it("boolean {}", () => {
+                expect(() => {
+                    validation.validate({}, ["test"])
+                }).not.throw(ApiError);
+            });
+            it("boolean 0", () => {
+                expect(() => {
+                    validation.validate({test: 0}, ["test"])
+                }).throw(ApiError);
+            });
+        });
+
+        describe(`array`, () => {
+            const validation = new Validation({test: {array}});
+            it("array []", () => {
+                expect(() => {
+                    validation.validate({test: []}, ["test"])
+                }).not.throw(ApiError);
+            });
+            it("array {}", () => {
+                expect(() => {
+                    validation.validate({test: {}}, ["test"])
+                }).throw(ApiError);
+            });
+        });
+
+        describe(`object`, () => {
+            const validation = new Validation({test: {object}});
+            it("object {}", () => {
+                expect(() => {
+                    validation.validate({test: {}}, ["test"])
+                }).not.throw(ApiError);
+            });
+            it("object []", () => {
+                expect(() => {
+                    validation.validate({test: []}, ["test"])
+                }).throw(ApiError);
+            });
         })
-    })
+    });
 
 });

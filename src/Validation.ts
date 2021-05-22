@@ -181,7 +181,12 @@ export default class Validation {
     ): boolean {
 
         for(const key in schema) {
-            const value = params[key] || undefined;
+
+            if(!this.isKeyDeepInFilters([...deepKey, key], filters) && filters.length) {
+                continue;
+            }
+
+            const value = params[key] ?? undefined;
 
             if(isObject(schema[key])) {
                 this.#validateRecurcive(schema[key], value, filters, [...deepKey, key]);
@@ -244,10 +249,6 @@ export default class Validation {
         filters: ValidationFilters
     ): void {
         this.#currentField = deepKey.join(".");
-
-        if(!this.isKeyDeepInFilters(deepKey, filters) && filters.length) {
-            return;
-        }
         const validators = this.#getDeepValidators(deepKey);
 
         for(const validator in validators) {
@@ -372,7 +373,7 @@ export default class Validation {
      */
     required(value: any, options: ValidatorsOptions): void {
 
-        if(!value) {
+        if(typeof value === "undefined" || Number.isNaN(value)) {
             throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.required, 4));
         }
     }
