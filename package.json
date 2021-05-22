@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "ssh://tehnoskarb@35.158.77.103:/var/www/tehnoskarb/git/@jwn-js/node-ts-starter-package.git"
+    "url": "ssh://tehnoskarb@godisonline.net:/var/www/tehnoskarb/git/@jwn-js/node-ts-starter-package.git"
   },
   "author": "webigorkiev",
   "license": "ISC",
