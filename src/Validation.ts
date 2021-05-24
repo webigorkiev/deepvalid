@@ -153,7 +153,10 @@ export const uaPhone = (params = {}) => ({param: true, ...params});
 /**
  * Value check by handler
  */
-export const depends = (handler = (value: any, options: ValidatorsOptions) => true, params = {}) => ({param: handler, ...params});
+export const depends = (
+    handler = (value: any, options: ValidatorsOptions = {param: true}): boolean => true,
+    params = {}
+) => ({param: handler, ...params});
 
 /**
  * The value is Date and in date range: [startDate, endDate]
@@ -235,7 +238,7 @@ export default class Validation {
                     model[key] = this.executeFunctionInModel(model[key]);
                 }
 
-                model[key] = typeof model[key] === "function" ? model[key]() : model[key];
+                model[key] = typeof model[key] === "function" && key !== "param" ? model[key]() : model[key];
             }
         }
 
@@ -263,7 +266,7 @@ export default class Validation {
             });
         }
 
-        return this.validateRecurcive(schema, params, filters);
+        return this.validateRecursively(schema, params, filters);
     }
 
     /**
@@ -275,7 +278,7 @@ export default class Validation {
      * @returns
      * @throws ApiError
      */
-    private validateRecurcive(
+    private validateRecursively(
         schema: Record<string, any>,
         params: Record<string, any>,
         filters: ValidationFilters = [],
@@ -291,7 +294,7 @@ export default class Validation {
             const value = params[key] ?? undefined;
 
             if(isObject(schema[key])) {
-                this.validateRecurcive(schema[key], value, filters, [...deepKey, key]);
+                this.validateRecursively(schema[key], value, filters, [...deepKey, key]);
             } else {
                 this.validateParam([...deepKey, key], value, filters);
             }
