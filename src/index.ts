@@ -44,4 +44,4 @@ export {
     depends,
     rangedate
 };
-export default Validation;
+export default () => new Validation();

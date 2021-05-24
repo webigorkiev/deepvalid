@@ -63,102 +63,102 @@ const defaultMessages = {
 /**
  * Value is required
  */
-export const required = {param: true};
+export const required = (params = {}) => ({param: true, ...params});
 
 /**
  * Value has boolean type
  */
-export const boolean = {param: true};
+export const boolean = (params = {}) => ({param: true, ...params});
 
 /**
  * Value has number type
  */
-export const number = {param: true};
+export const number = (params = {}) => ({param: true, ...params});
 
 /**
  * Value is array
  */
-export const array = {param: true};
+export const array = (params = {}) => ({param: true, ...params});
 
 /**
  * Value is object
  */
-export const object = {param: true};
+export const object = (params = {}) => ({param: true, ...params});
 
 /**
  * Value has min length > param
  */
-export const minlength = {param: 0};
+export const minlength = (min = 0,params = {}) => ({param: min, ...params});
 
 /**
  * Value has max length < param
  */
-export const maxlength = {param: 65535};
+export const maxlength = (max = 255,params = {}) => ({param: max, ...params});
 
 /**
  * Value has length in range: [min, max]
  */
-export const rangelength = {param: [0, 255]};
+export const rangelength = (range = [0, 255], params = {}) => ({param: range, ...params});
 
 /**
  * The value is a digit and in the range: [min, max]
  */
-export const range = {param: [0, 65535]};
+export const range = (range = [0, 65535], params = {}) => ({param: range, ...params});
 
 /**
  * The value higher then param
  */
-export const min = {param: 0};
+export const min = (min = 0,params = {}) => ({param: min, ...params});
 
 /**
  * The value lower then param
  */
-export const max = {param: 65535};
+export const max = (max = 65535,params = {}) => ({param: max, ...params});
 
 /**
  * Value is valid email
  */
-export const email = {param: true};
+export const email = (params = {}) => ({param: true, ...params});
 
 /**
  * Value is valid url
  */
-export const url = {param: true};
+export const url = (params = {}) => ({param: true, ...params});
 
 /**
  * Value is valid date stirng in ISO format
  */
-export const dateISO = {param: true};
+export const dateISO = (params = {}) => ({param: true, ...params});
 
 /**
  * Value is only digits
  */
-export const digits = {param: true};
+export const digits = (params = {}) => ({param: true, ...params});
 
 /**
  * Value equal to param
  */
-export const equalTo = {param: true};
+export const equalTo = (value: any, params = {}) => ({param: value, ...params});
 
 /**
  * The value matches a regular expression
  */
-export const regexp = {param: /\d/i};
+export const regexp = (regexp: RegExp = /\d/i, params = {}) => ({param: regexp, ...params});
 
 /**
  * The value is ua phone
  */
-export const uaPhone = {param: true};
+export const uaPhone = (params = {}) => ({param: true, ...params});
 
 /**
  * Value check by handler
  */
-export const depends = {param: (value: any, options: ValidatorsOptions) => true};
+export const depends = (handler = (value: any, options: ValidatorsOptions) => true, params = {}) => ({param: handler, ...params});
 
 /**
  * The value is Date and in date range: [startDate, endDate]
  */
-export const rangedate = {param: [new Date(), new Date()]};
+export const rangedate = (range = [new Date(), new Date()], params = {}) => ({param: range, ...params});
 
 /**
  * @class Validations
@@ -210,7 +210,7 @@ export default class Validation {
             defaultStatusCode?: number} = {}
     ) {
         const opt = Object.assign({}, validationDefaultOption, options);
-        this.#validationModel = model;
+        this.#validationModel = this.executeFunctionInModel(model);
         this.#isFieldNameMode = <boolean>opt.isFieldNameMode;
         this.#defaultStatusCode = <number>opt.defaultStatusCode;
     }
@@ -220,7 +220,26 @@ export default class Validation {
      * @param model - validations model ruls
      */
     public setModel(model: ValidationModel = {}) {
-        this.#validationModel = model;
+        this.#validationModel = this.executeFunctionInModel(model);
+    }
+
+    /**
+     * Execute functions in validation model
+     * @param model
+     * @private
+     */
+    private executeFunctionInModel(model: ValidationModel) {
+        for(const key in model) {
+            if(model.hasOwnProperty(key)) {
+                if(isObject(model[key])) {
+                    model[key] = this.executeFunctionInModel(model[key]);
+                }
+
+                model[key] = typeof model[key] === "function" ? model[key]() : model[key];
+            }
+        }
+
+        return model;
     }
 
     /**
@@ -345,7 +364,25 @@ export default class Validation {
                     statusCode: this.#defaultStatusCode
                 });
             }
-            const options = validators[validator];
+            let options;
+
+            if(isObject(validators[validator])) {
+                options = validators[validator];
+            } else {
+                throw new ApiError({
+                    message: `validator should be function or object`,
+                    code: 1,
+                    statusCode: this.#defaultStatusCode
+                });
+            }
+
+            if(!options.hasOwnProperty("param")) {
+                throw new ApiError({
+                    message: `validator options should have param key`,
+                    code: 1,
+                    statusCode: this.#defaultStatusCode
+                });
+            }
 
             if((value !== '' && value !== undefined && value !== null && !Number.isNaN(value)) || validator === 'required') {
                 this[validator](value, options);
