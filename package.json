@@ -1,7 +1,7 @@
 {
   "name": "@jwn-js/validation",
   "private": true,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Template for @jwn-js packages",
   "main": "dist/index.js",
   "types": "src/index.ts",

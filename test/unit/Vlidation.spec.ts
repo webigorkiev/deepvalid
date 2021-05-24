@@ -7,7 +7,10 @@ import {
     array,
     object,
     uaPhone,
-    digits
+    digits,
+    minlength,
+    maxlength,
+    rangelength
 } from "@/index"
 
 // https://runebook.dev/ru/docs/chai/-index-
@@ -232,6 +235,49 @@ describe("@jwn-js/validation", () => {
             it(`param:5 for "123"`, () => {
                 expect(() => {
                     validation.validate({test: "123"}, ["test"])
+                }).throw(ApiError);
+            });
+            it(`param:5 for new Set([1,2])`, () => {
+                expect(() => {
+                    validation.validate({test: new Set([1,2])}, ["test"])
+                }).throw(ApiError);
+            });
+        });
+
+        describe(`maxlength`, () => {
+            const validation = new Validation({test: {maxlength: {param: 5}}});
+            it(`param:5 for "123456"`, () => {
+                expect(() => {
+                    validation.validate({test: "123456"}, ["test"])
+                }).throw(ApiError);
+            });
+            it(`param:5 for "123"`, () => {
+                expect(() => {
+                    validation.validate({test: "123"}, ["test"])
+                }).not.throw(ApiError);
+            });
+            it(`param:5 for new Set([1,2,3,4,5,6])`, () => {
+                expect(() => {
+                    validation.validate({test: new Set([1,2,3,4,5,6])}, ["test"])
+                }).throw(ApiError);
+            });
+        });
+
+        describe(`rangelength 1-5`, () => {
+            const validation = new Validation({test: {rangelength: {param: [1, 5]}}});
+            it(`param:5 for "123456"`, () => {
+                expect(() => {
+                    validation.validate({test: "123456"}, ["test"])
+                }).throw(ApiError);
+            });
+            it(`param:5 for "123"`, () => {
+                expect(() => {
+                    validation.validate({test: "123"}, ["test"])
+                }).not.throw(ApiError);
+            });
+            it(`param:5 for new Set([1,2,3,4,5,6])`, () => {
+                expect(() => {
+                    validation.validate({test: new Set([1,2,3,4,5,6])}, ["test"])
                 }).throw(ApiError);
             });
         });

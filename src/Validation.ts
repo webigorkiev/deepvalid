@@ -451,6 +451,30 @@ export default class Validation {
     }
 
     /**
+     * determine the length
+     * @param value
+     * @returns length
+     * @private
+     */
+    private valueLength(value: any): number {
+        let length;
+
+        if(typeof value === "string" || Array.isArray(value)) {
+            length = value.length;
+        } else if(value instanceof Set || value instanceof Map) {
+            length = value.size
+        } else {
+            throw new ApiError({
+                message: `the value has no length`,
+                code: 3,
+                statusCode: this.#defaultStatusCode
+            });
+        }
+
+        return length;
+    }
+
+    /**
      * Required
      * @param value - input value
      * @param options - validator`s options
@@ -506,8 +530,9 @@ export default class Validation {
      * @param options - validator`s options
      */
     private minlength(value: any, options: ValidatorsOptions) {
+        const length = this.valueLength(value);
 
-        if(value.length < options.param) {
+        if(length < options.param) {
             throw new ApiError(
                 this.adaptToErrorMessage(options, defaultMessages.minlength, 6, [options.param])
             );
@@ -515,13 +540,14 @@ export default class Validation {
     }
 
     /**
-     * Minlength
+     * Maxlength
      * @param value - input value
      * @param options - validator`s options
      */
     private maxlength(value: any, options: ValidatorsOptions) {
+        const length = this.valueLength(value);
 
-        if(value.length > options.param) {
+        if(length > options.param) {
             throw new ApiError(
                 this.adaptToErrorMessage(options, defaultMessages.maxlength, 7, [options.param])
             );
@@ -544,7 +570,9 @@ export default class Validation {
             });
         }
 
-        if(value.length < options.param[0] || value.length > options.param[1]) {
+        const length = this.valueLength(value);
+
+        if(length < options.param[0] || length > options.param[1]) {
             throw new ApiError(
                 this.adaptToErrorMessage(options, defaultMessages.rangelength, 9, [...options.param])
             );
