@@ -635,6 +635,14 @@ export default class Validation {
             });
         }
 
+        if(typeof value !== "number") {
+            throw new ApiError({
+                message: `value for min should be should be a number`,
+                code: 10,
+                statusCode: this.#defaultStatusCode
+            });
+        }
+
         if(value < options.param) {
             throw new ApiError(
                 this.adaptToErrorMessage(options, defaultMessages.min, 11, [String(options.param)])
@@ -658,6 +666,14 @@ export default class Validation {
             });
         }
 
+        if(typeof value !== "number") {
+            throw new ApiError({
+                message: `value for min should be should be a number`,
+                code: 12,
+                statusCode: this.#defaultStatusCode
+            });
+        }
+
         if(value > options.param) {
             throw new ApiError(
                 this.adaptToErrorMessage(options, defaultMessages.max, 13, [String(options.param)])
@@ -673,9 +689,20 @@ export default class Validation {
      */
     private range(value: any, options: ValidatorsOptions) {
 
-        if(!Array.isArray(options.param)) {
+        if(!Array.isArray(options.param)
+            || typeof options.param[0] !== "number"
+            || typeof options.param[1] !== "number"
+        ) {
             throw new ApiError({
                 message: `options for range should be should be an array`,
+                code: 12,
+                statusCode: this.#defaultStatusCode
+            });
+        }
+
+        if(typeof value !== "number") {
+            throw new ApiError({
+                message: `value for range should be should be a number`,
                 code: 12,
                 statusCode: this.#defaultStatusCode
             });
