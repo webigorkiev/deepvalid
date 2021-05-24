@@ -15,12 +15,12 @@ export interface ValidatorsOptions {
 /**
  * Filters that show - what need validate
  */
-type ValidationFilters = Array<string|Record<string, ValidationFilters>>;
+export type ValidationFilters = Array<string|Record<string, ValidationFilters>>;
 
 /**
  * Validation model
  */
-interface ValidationModel {
+export interface ValidationModel {
     [x:string]: ValidationModel|ValidatorsOptions|any
 }
 
@@ -60,25 +60,104 @@ const defaultMessages = {
 };
 
 // Validators with default options
+/**
+ * Value is required
+ */
 export const required = {param: true};
+
+/**
+ * Value has boolean type
+ */
 export const boolean = {param: true};
-export const array = {param: true};
-export const object = {param: true};
-export const minlength = {param: 0};
-export const maxlength = {param: 65535};
-export const rangelength = {param: [0, 255]};
-export const range = {param: [0, 65535]};
-export const min = {param: 0};
-export const max = {param: 65535};
-export const email = {param: true};
-export const url = {param: true};
-export const dateISO = {param: true};
-export const digits = {param: true};
+
+/**
+ * Value has number type
+ */
 export const number = {param: true};
+
+/**
+ * Value is array
+ */
+export const array = {param: true};
+
+/**
+ * Value is object
+ */
+export const object = {param: true};
+
+/**
+ * Value has min length > param
+ */
+export const minlength = {param: 0};
+
+/**
+ * Value has max length < param
+ */
+export const maxlength = {param: 65535};
+
+/**
+ * Value has length in range: [min, max]
+ */
+export const rangelength = {param: [0, 255]};
+
+/**
+ * The value is a digit and in the range: [min, max]
+ */
+export const range = {param: [0, 65535]};
+
+/**
+ * The value higher then param
+ */
+export const min = {param: 0};
+
+/**
+ * The value lower then param
+ */
+export const max = {param: 65535};
+
+/**
+ * Value is valid email
+ */
+export const email = {param: true};
+
+/**
+ * Value is valid url
+ */
+export const url = {param: true};
+
+/**
+ * Value is valid date stirng in ISO format
+ */
+export const dateISO = {param: true};
+
+/**
+ * Value is only digits
+ */
+export const digits = {param: true};
+
+/**
+ * Value equal to param
+ */
 export const equalTo = {param: true};
+
+/**
+ * The value matches a regular expression
+ */
 export const regexp = {param: /\d/i};
+
+/**
+ * The value is ua phone
+ */
 export const uaPhone = {param: true};
+
+/**
+ * Value check by handler
+ */
 export const depends = {param: (value: any, options: ValidatorsOptions) => true};
+
+/**
+ * The value is Date and in date range: [startDate, endDate]
+ */
 export const rangedate = {param: [new Date(), new Date()]};
 
 /**
@@ -125,7 +204,11 @@ export default class Validation {
      * @param model - validation model
      * @param options - validation default options
      */
-    constructor(model: ValidationModel = {}, options: {isFieldNameMode?: boolean, defaultStatusCode?: number} = {}) {
+    public constructor(
+        model: ValidationModel = {},
+        options: {isFieldNameMode?: boolean,
+            defaultStatusCode?: number} = {}
+    ) {
         const opt = Object.assign({}, validationDefaultOption, options);
         this.#validationModel = model;
         this.#isFieldNameMode = <boolean>opt.isFieldNameMode;
@@ -136,7 +219,7 @@ export default class Validation {
      * Set validation model
      * @param model - validations model ruls
      */
-    setModel(model: ValidationModel = {}) {
+    public setModel(model: ValidationModel = {}) {
         this.#validationModel = model;
     }
 
@@ -147,11 +230,11 @@ export default class Validation {
      * @returns
      * @throws ApiError
      */
-    validate(
+    public validate(
         params: Record<string, any>,
         filters: ValidationFilters = []
     ): boolean {
-        const schema = this.#cutTwolastLevel(this.#validationModel);
+        const schema = this.cutTwolastLevel(this.#validationModel);
 
         if(!schema) {
             throw new ApiError({
@@ -161,7 +244,7 @@ export default class Validation {
             });
         }
 
-        return this.#validateRecurcive(schema, params, filters);
+        return this.validateRecurcive(schema, params, filters);
     }
 
     /**
@@ -173,7 +256,7 @@ export default class Validation {
      * @returns
      * @throws ApiError
      */
-    #validateRecurcive(
+    private validateRecurcive(
         schema: Record<string, any>,
         params: Record<string, any>,
         filters: ValidationFilters = [],
@@ -189,9 +272,9 @@ export default class Validation {
             const value = params[key] ?? undefined;
 
             if(isObject(schema[key])) {
-                this.#validateRecurcive(schema[key], value, filters, [...deepKey, key]);
+                this.validateRecurcive(schema[key], value, filters, [...deepKey, key]);
             } else {
-                this.#validateParam([...deepKey, key], value, filters);
+                this.validateParam([...deepKey, key], value, filters);
             }
         }
 
@@ -204,8 +287,8 @@ export default class Validation {
      * @returns validation schema
      * @private
      */
-    #cutTwolastLevel(obj: ValidationModel):Record<string, any>|undefined {
-        return this.#lastLevelCut(this.#lastLevelCut(obj));
+    private cutTwolastLevel(obj: ValidationModel):Record<string, any>|undefined {
+        return this.lastLevelCut(this.lastLevelCut(obj));
     }
 
     /**
@@ -214,7 +297,8 @@ export default class Validation {
      * @param output - output
      * @private
      */
-    #lastLevelCut(obj: Record<string, any>|undefined, output = {}):Record<string, any>|undefined  {
+
+    private lastLevelCut(obj: Record<string, any>|undefined, output = {}):Record<string, any>|undefined  {
         if(!obj) {
             return undefined;
         }
@@ -225,7 +309,7 @@ export default class Validation {
                 const value = obj[key];
 
                 if(isObject(value)) {
-                    output[key] = this.#lastLevelCut(value);
+                    output[key] = this.lastLevelCut(value);
                 } else {
 
                     return undefined;
@@ -243,13 +327,14 @@ export default class Validation {
      * @param filters validated filters
      * @returns
      */
-    #validateParam(
+
+    private validateParam(
         deepKey: Array<string>,
         value: any,
         filters: ValidationFilters
     ): void {
         this.#currentField = deepKey.join(".");
-        const validators = this.#getDeepValidators(deepKey);
+        const validators = this.getDeepValidators(deepKey);
 
         for(const validator in validators) {
 
@@ -273,7 +358,7 @@ export default class Validation {
      * @param deepKeys - keys array
      * @private
      */
-    #getDeepValidators(deepKeys: Array<string>) {
+    private getDeepValidators(deepKeys: Array<string>) {
 
         return deepKeys.reduce((accumulator, key) => {
 
@@ -296,7 +381,7 @@ export default class Validation {
      * @param deep - deep range
      * @private
      */
-    isKeyDeepInFilters(
+    public isKeyDeepInFilters(
         deepKey: Array<string>,
         filters: ValidationFilters,
         deep: number = 0
@@ -328,7 +413,7 @@ export default class Validation {
      * Get only validated params
      * @returns params, that have been validated
      */
-    getValidatedParams() {
+    public getValidatedParams() {
         return this.#validatedParams
     }
 
@@ -336,7 +421,7 @@ export default class Validation {
      * Get input params
      * @returns all input params
      */
-    getInputParams() {
+    public getInputParams() {
         return this.#inputParams;
     }
 
@@ -348,7 +433,8 @@ export default class Validation {
      * @param replace - addition data for replace !% in message
      * @private
      */
-    #adaptToErrorMessage(
+
+    private adaptToErrorMessage(
         options: ValidatorsOptions,
         defaultMessage: string,
         defaultCode: number,
@@ -359,7 +445,7 @@ export default class Validation {
             code: defaultCode,
             statusCode: this.#defaultStatusCode
         }, options);
-        errorMessageObj.message = this.#messageReplace(errorMessageObj.message, replace);
+        errorMessageObj.message = this.messageReplace(errorMessageObj.message, replace);
 
         return errorMessageObj;
     }
@@ -371,10 +457,10 @@ export default class Validation {
      * @returns
      * @throws ApiError
      */
-    required(value: any, options: ValidatorsOptions): void {
+    private required(value: any, options: ValidatorsOptions): void {
 
         if(typeof value === "undefined" || Number.isNaN(value)) {
-            throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.required, 4));
+            throw new ApiError(this.adaptToErrorMessage(options, defaultMessages.required, 4));
         }
     }
 
@@ -383,10 +469,10 @@ export default class Validation {
      * @param value - input value
      * @param options - validator`s options
      */
-    boolean(value: any, options: ValidatorsOptions) {
+    private boolean(value: any, options: ValidatorsOptions) {
 
         if(typeof value !== "boolean") {
-            throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.boolean, 5));
+            throw new ApiError(this.adaptToErrorMessage(options, defaultMessages.boolean, 5));
         }
     }
 
@@ -395,10 +481,10 @@ export default class Validation {
      * @param value - input value
      * @param options - validator`s options
      */
-    array(value: any, options: ValidatorsOptions) {
+    private array(value: any, options: ValidatorsOptions) {
 
         if(!Array.isArray(value)) {
-            throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.array, 5));
+            throw new ApiError(this.adaptToErrorMessage(options, defaultMessages.array, 5));
         }
     }
 
@@ -407,10 +493,10 @@ export default class Validation {
      * @param value - input value
      * @param options - validator`s options
      */
-    object(value: any, options: ValidatorsOptions) {
+    private object(value: any, options: ValidatorsOptions) {
 
         if(!isObject(value)) {
-            throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.object, 5));
+            throw new ApiError(this.adaptToErrorMessage(options, defaultMessages.object, 5));
         }
     }
 
@@ -419,11 +505,11 @@ export default class Validation {
      * @param value - input value
      * @param options - validator`s options
      */
-    minlength(value: any, options: ValidatorsOptions) {
+    private minlength(value: any, options: ValidatorsOptions) {
 
         if(value.length < options.param) {
             throw new ApiError(
-                this.#adaptToErrorMessage(options, defaultMessages.minlength, 6, [options.param])
+                this.adaptToErrorMessage(options, defaultMessages.minlength, 6, [options.param])
             );
         }
     }
@@ -433,11 +519,11 @@ export default class Validation {
      * @param value - input value
      * @param options - validator`s options
      */
-    maxlength(value: any, options: ValidatorsOptions) {
+    private maxlength(value: any, options: ValidatorsOptions) {
 
         if(value.length > options.param) {
             throw new ApiError(
-                this.#adaptToErrorMessage(options, defaultMessages.maxlength, 7, [options.param])
+                this.adaptToErrorMessage(options, defaultMessages.maxlength, 7, [options.param])
             );
         }
     }
@@ -448,7 +534,7 @@ export default class Validation {
      * @param options - validator`s options
      * @return {Boolean}
      */
-    rangelength(value: any, options: ValidatorsOptions) {
+    private rangelength(value: any, options: ValidatorsOptions) {
 
         if(!Array.isArray(options.param)) {
             throw new ApiError({
@@ -460,7 +546,7 @@ export default class Validation {
 
         if(value.length < options.param[0] || value.length > options.param[1]) {
             throw new ApiError(
-                this.#adaptToErrorMessage(options, defaultMessages.rangelength, 9, [...options.param])
+                this.adaptToErrorMessage(options, defaultMessages.rangelength, 9, [...options.param])
             );
         }
     }
@@ -471,7 +557,7 @@ export default class Validation {
      * @param options - validator`s options
      * @return {Boolean}
      */
-    min(value: any, options: ValidatorsOptions) {
+    private min(value: any, options: ValidatorsOptions) {
 
         if(typeof options.param !== "number") {
             throw new ApiError({
@@ -483,7 +569,7 @@ export default class Validation {
 
         if(value < options.param) {
             throw new ApiError(
-                this.#adaptToErrorMessage(options, defaultMessages.min, 11, [String(options.param)])
+                this.adaptToErrorMessage(options, defaultMessages.min, 11, [String(options.param)])
             );
         }
     }
@@ -494,7 +580,7 @@ export default class Validation {
      * @param options - validator`s options
      * @return {Boolean}
      */
-    max(value: any, options: ValidatorsOptions) {
+    private max(value: any, options: ValidatorsOptions) {
 
         if(typeof options.param !== "number") {
             throw new ApiError({
@@ -506,7 +592,7 @@ export default class Validation {
 
         if(value > options.param) {
             throw new ApiError(
-                this.#adaptToErrorMessage(options, defaultMessages.max, 13, [String(options.param)])
+                this.adaptToErrorMessage(options, defaultMessages.max, 13, [String(options.param)])
             );
         }
     }
@@ -517,7 +603,7 @@ export default class Validation {
      * @param options - validator`s options
      * @return {Boolean}
      */
-    range(value: any, options: ValidatorsOptions) {
+    private range(value: any, options: ValidatorsOptions) {
 
         if(!Array.isArray(options.param)) {
             throw new ApiError({
@@ -529,7 +615,7 @@ export default class Validation {
 
         if(value < options.param[0] || value > options.param[1]) {
             throw new ApiError(
-                this.#adaptToErrorMessage(options, defaultMessages.range, 15, [...options.param])
+                this.adaptToErrorMessage(options, defaultMessages.range, 15, [...options.param])
             );
         }
     }
@@ -540,11 +626,11 @@ export default class Validation {
      * @param options - validator`s options
      * @return {Boolean}
      */
-    email(value: any, options: ValidatorsOptions) {
+    private email(value: any, options: ValidatorsOptions) {
         const regexp = /^[a-zA-Z0-9.!#$%&\'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/i;
 
         if(!regexp.test(value)) {
-            throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.email, 16));
+            throw new ApiError(this.adaptToErrorMessage(options, defaultMessages.email, 16));
         }
     }
 
@@ -554,11 +640,11 @@ export default class Validation {
      * @param options - validator`s options
      * @return {Boolean}
      */
-    url(value: any, options: ValidatorsOptions) {
+    private url(value: any, options: ValidatorsOptions) {
         const regexp = /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z0-9]-*)*[a-z0-9]+)(?:\.(?:[a-z0-9]-*)*[a-z0-9]+)*(?:\.(?:[a-z]{2,})).?)(?::\d{2,5})?(?:[\/?#]\S*)?$/i
 
         if(!regexp.test(value)) {
-            throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.url, 17));
+            throw new ApiError(this.adaptToErrorMessage(options, defaultMessages.url, 17));
         }
     }
 
@@ -570,11 +656,11 @@ export default class Validation {
      *
      * @return {Boolean}
      */
-    dateISO(value: any, options: ValidatorsOptions) {
+    private dateISO(value: any, options: ValidatorsOptions) {
         const regexp = /^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/i;
 
         if(!regexp.test(value)) {
-            throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.dateISO, 18));
+            throw new ApiError(this.adaptToErrorMessage(options, defaultMessages.dateISO, 18));
         }
     }
 
@@ -584,10 +670,10 @@ export default class Validation {
      * @param {Object} options
      * @return {Boolean}
      */
-    digits(value: any, options: ValidatorsOptions) {
+    private digits(value: any, options: ValidatorsOptions) {
 
         if(typeof value !== "number" || value !== Math.round(value)) {
-            throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.digits, 19));
+            throw new ApiError(this.adaptToErrorMessage(options, defaultMessages.digits, 19));
         }
     }
 
@@ -597,10 +683,10 @@ export default class Validation {
      * @param options - validator`s options
      * @return {Boolean}
      */
-    number(value: any, options: ValidatorsOptions) {
+    private number(value: any, options: ValidatorsOptions) {
 
         if(typeof value !== "number") {
-            throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.number, 20));
+            throw new ApiError(this.adaptToErrorMessage(options, defaultMessages.number, 20));
         }
     }
 
@@ -610,10 +696,10 @@ export default class Validation {
      * @param options - validator`s options
      * @return {Boolean}
      */
-    equalTo(value: any, options: ValidatorsOptions) {
+    private equalTo(value: any, options: ValidatorsOptions) {
 
         if(value !== options.param) {
-            throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.equalTo, 21));
+            throw new ApiError(this.adaptToErrorMessage(options, defaultMessages.equalTo, 21));
         }
     }
 
@@ -623,7 +709,7 @@ export default class Validation {
      * @param options - validator`s options
      * @return {Boolean}
      */
-    regexp(value: any, options: ValidatorsOptions) {
+    private regexp(value: any, options: ValidatorsOptions) {
 
         if(!(options.param instanceof RegExp)) {
             throw new ApiError({
@@ -634,7 +720,7 @@ export default class Validation {
         }
 
         if(!options.param.test(value)) {
-            throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.regexp, 22));
+            throw new ApiError(this.adaptToErrorMessage(options, defaultMessages.regexp, 22));
         }
     }
 
@@ -644,11 +730,11 @@ export default class Validation {
      * @param options - validator`s options
      * @return {Boolean}
      */
-    uaPhone(value: any, options: ValidatorsOptions) {
+    private uaPhone(value: any, options: ValidatorsOptions) {
         const regexp = /^\+380[5-9]{1}[0-9]{1}[0-9]{3}[0-9]{2}[0-9]{2}$/i;
 
         if(!regexp.test(value)) {
-            throw new ApiError(this.#adaptToErrorMessage(options, defaultMessages.phone, 23));
+            throw new ApiError(this.adaptToErrorMessage(options, defaultMessages.phone, 23));
         }
     }
 
@@ -658,7 +744,7 @@ export default class Validation {
      * @param options - validator`s options
      * @return {Boolean}
      */
-    rangedate(value: any, options: ValidatorsOptions) {
+    private rangedate(value: any, options: ValidatorsOptions) {
 
         if(!Array.isArray(options.param)) {
             throw new ApiError({
@@ -681,7 +767,7 @@ export default class Validation {
 
         if(!isValid) {
             throw new ApiError(
-                this.#adaptToErrorMessage(options, defaultMessages.rangedate, 25, [...options.param])
+                this.adaptToErrorMessage(options, defaultMessages.rangedate, 25, [...options.param])
             );
         }
     }
@@ -692,7 +778,7 @@ export default class Validation {
      * @param options - validator`s options
      * @return {Boolean}
      */
-    depends(value: any, options: ValidatorsOptions) {
+    private depends(value: any, options: ValidatorsOptions) {
 
         if(typeof options.param !== "function") {
             throw new ApiError({
@@ -704,7 +790,7 @@ export default class Validation {
 
         if(!options.param(value, options)) {
             throw new ApiError(
-                this.#adaptToErrorMessage(options, defaultMessages.depends, 25)
+                this.adaptToErrorMessage(options, defaultMessages.depends, 25)
             );
         }
     }
@@ -714,7 +800,8 @@ export default class Validation {
      * @param message input message string
      * @param arrReplace - array of replace value
      */
-    #messageReplace(message: string, arrReplace: Array<string> = []) {
+
+    private messageReplace(message: string, arrReplace: Array<string> = []) {
         arrReplace.map(v => message = message.replace('!%', v));
 
         return this.#isFieldNameMode ? `${this.#currentField}: ${message}` : message;

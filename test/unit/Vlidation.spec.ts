@@ -220,7 +220,21 @@ describe("@jwn-js/validation", () => {
                     validation.validate({test: []}, ["test"])
                 }).throw(ApiError);
             });
-        })
+        });
+
+        describe(`minlength`, () => {
+            const validation = new Validation({test: {minlength: {param: 5}}});
+            it(`param:5 for "12345"`, () => {
+                expect(() => {
+                    validation.validate({test: "12345"}, ["test"])
+                }).not.throw(ApiError);
+            });
+            it(`param:5 for "123"`, () => {
+                expect(() => {
+                    validation.validate({test: "123"}, ["test"])
+                }).throw(ApiError);
+            });
+        });
     });
 
 });
