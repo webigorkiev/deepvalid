@@ -49,7 +49,7 @@ const defaultMessages = {
     max: "the value is greater than the maximum value !%",
     email: "the email address is not correct",
     url: "the url is not correct",
-    dateISO: "the ISO date format is not correct",
+    dateIso: "the ISO date format is not correct",
     digits: "the value is not an integer",
     number: "the value is not a decimal number",
     equalTo: "field values are not equivalent",
@@ -128,7 +128,7 @@ export const url = (params = {}) => ({param: true, ...params});
 /**
  * Value is valid date stirng in ISO format
  */
-export const dateISO = (params = {}) => ({param: true, ...params});
+export const dateIso = (params = {}) => ({param: true, ...params});
 
 /**
  * Value is only digits
@@ -745,17 +745,16 @@ export default class Validation {
 
     /**
      *  Check date ISO fromat
-     *
      * @param value - input value
      * @param options - validator`s options
      *
      * @return {Boolean}
      */
-    private dateISO(value: any, options: ValidatorsOptions) {
+    private dateIso(value: any, options: ValidatorsOptions) {
         const regexp = /^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/i;
 
         if(!regexp.test(value)) {
-            throw new ApiError(this.adaptToErrorMessage(options, defaultMessages.dateISO, 18));
+            throw new ApiError(this.adaptToErrorMessage(options, defaultMessages.dateIso, 18));
         }
     }
 
