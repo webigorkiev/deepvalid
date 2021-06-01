@@ -387,7 +387,12 @@ export default class Validation {
                 });
             }
 
-            if((value !== '' && value !== undefined && value !== null && !Number.isNaN(value)) || validator === 'required') {
+            if((
+                value !== ''
+                && value !== undefined
+                && value !== null
+                && !Number.isNaN(value)
+            ) || validator === 'required') {
                 this[validator](value, options);
             }
         }
@@ -512,6 +517,17 @@ export default class Validation {
         }
 
         return length;
+    }
+
+    /**
+     * Replace insert in error massage
+     * @param message input message string
+     * @param arrReplace - array of replace value
+     */
+    private messageReplace(message: string, arrReplace: Array<string> = []) {
+        arrReplace.map(v => message = message.replace('!%', v));
+
+        return this.#isFieldNameMode ? `${this.#currentField}: ${message}` : message;
     }
 
     /**
@@ -887,17 +903,5 @@ export default class Validation {
                 this.adaptToErrorMessage(options, defaultMessages.depends, 25)
             );
         }
-    }
-
-    /**
-     * Replace insert in error massage
-     * @param message input message string
-     * @param arrReplace - array of replace value
-     */
-
-    private messageReplace(message: string, arrReplace: Array<string> = []) {
-        arrReplace.map(v => message = message.replace('!%', v));
-
-        return this.#isFieldNameMode ? `${this.#currentField}: ${message}` : message;
     }
 }

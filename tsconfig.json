@@ -8,7 +8,7 @@
     "target": "es2020",
     "strictPropertyInitialization": false,
     "strict": true,
-    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "suppressImplicitAnyIndexErrors": true,
