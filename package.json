@@ -1,6 +1,6 @@
 {
   "name": "deepvalid",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Deep input validation for node.js api",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,6 +9,13 @@
     "test": "ts-mocha --paths -p tsconfig.json --recursive ./test/unit/**/*.{js,cjs,mjs,ts}",
     "lint": "eslint src/** --ignore-path ./.eslintignore"
   },
+  "keywords": [
+    "validation",
+    "form validation",
+    "node api validation",
+    "validator",
+    "input params check"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/webigorkiev/deepvalid.git"
