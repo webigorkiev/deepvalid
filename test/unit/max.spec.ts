@@ -1,5 +1,5 @@
 import validation, {max} from "@/index";
-import ApiError from "@jwn-js/common/ApiError";
+import {ValidationError} from "@/ValidationError";
 import {expect} from "chai";
 
 const valid = validation();
@@ -9,16 +9,16 @@ describe(`min`, () => {
     it(`param:5 for 10`, () => {
         expect(() => {
             valid.validate({test: 10}, ["test"])
-        }).throw(ApiError);
+        }).throw(ValidationError);
     });
     it(`param:5 for 3`, () => {
         expect(() => {
             valid.validate({test: 3}, ["test"])
-        }).not.throw(ApiError);
+        }).not.throw(ValidationError);
     });
     it(`param:5 for {})`, () => {
         expect(() => {
             valid.validate({test: {}}, ["test"])
-        }).throw(ApiError);
+        }).throw(ValidationError);
     });
 });

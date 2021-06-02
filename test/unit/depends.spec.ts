@@ -1,5 +1,5 @@
 import validation, {depends} from "@/index";
-import ApiError from "@jwn-js/common/ApiError";
+import {ValidationError} from "@/ValidationError";
 import {expect} from "chai";
 
 const valid = validation();
@@ -13,11 +13,11 @@ describe(`depends`, () => {
     it("depends true", () => {
         expect(() => {
             valid.validate({test: true}, ["test"])
-        }).not.throw(ApiError);
+        }).not.throw(ValidationError);
     });
     it("depends false", () => {
         expect(() => {
             valid.validate({test: false}, ["test"])
-        }).throw(ApiError);
+        }).throw(ValidationError);
     });
 });

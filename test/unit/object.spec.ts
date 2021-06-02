@@ -1,5 +1,5 @@
 import validation, {object} from "@/index";
-import ApiError from "@jwn-js/common/ApiError";
+import {ValidationError} from "@/ValidationError";
 import {expect} from "chai";
 
 const valid = validation();
@@ -9,11 +9,11 @@ describe(`object`, () => {
     it("object {}", () => {
         expect(() => {
             valid.validate({test: {}}, ["test"])
-        }).not.throw(ApiError);
+        }).not.throw(ValidationError);
     });
     it("object []", () => {
         expect(() => {
             valid.validate({test: []}, ["test"])
-        }).throw(ApiError);
+        }).throw(ValidationError);
     });
 });

@@ -1,5 +1,5 @@
 import validation, {boolean, required, Validation} from "@/index";
-import ApiError from "@jwn-js/common/ApiError";
+import {ValidationError} from "@/ValidationError";
 import {expect} from "chai";
 
 const valid = validation();
@@ -9,21 +9,21 @@ describe(`boolean`, () => {
     it("boolean true", () => {
         expect(() => {
             valid.validate({test: true}, ["test"])
-        }).not.throw(ApiError);
+        }).not.throw(ValidationError);
     });
     it("boolean false", () => {
         expect(() => {
             valid.validate({test: false}, ["test"])
-        }).not.throw(ApiError);
+        }).not.throw(ValidationError);
     });
     it("boolean {}", () => {
         expect(() => {
             valid.validate({}, ["test"])
-        }).not.throw(ApiError);
+        }).not.throw(ValidationError);
     });
     it("boolean 0", () => {
         expect(() => {
             valid.validate({test: 0}, ["test"])
-        }).throw(ApiError);
+        }).throw(ValidationError);
     });
 });

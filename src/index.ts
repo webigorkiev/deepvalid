@@ -14,15 +14,20 @@ import Validation, {
     dateIso,
     digits,
     number,
-    equalTo,
+    equal,
+    eql,
     regexp,
     uaPhone,
     depends,
     rangedate
-} from "@/Validation";
+} from "./Validation";
+import {ValidationError} from "./ValidationError";
+import {ValidationErrorMessage} from "./ValidationError";
 
 export {
     Validation,
+    ValidationError,
+    ValidationErrorMessage,
     required,
     boolean,
     array,
@@ -38,7 +43,8 @@ export {
     dateIso,
     digits,
     number,
-    equalTo,
+    equal,
+    eql,
     regexp,
     uaPhone,
     depends,

@@ -4,15 +4,11 @@
   "version": "0.0.4",
   "description": "Template for @jwn-js packages",
   "main": "dist/index.js",
-  "types": "src/index.ts",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "app": "concurrently \"npm run serve\" \"nodemon ./dist/index-dev.js\"",
-    "serve": "webpack --config ./webpack.config.js --watch",
     "build": "webpack --config ./webpack.config.js --mode production",
     "test": "ts-mocha --paths -p tsconfig.json --recursive ./test/unit/**/*.{js,cjs,mjs,ts}",
-    "lint": "eslint src/** --ignore-path ./.eslintignore",
-    "lint:fix": "eslint src/** --ignore-path ./.eslintignore --fix",
-    "docs": "typedoc --includeVersion --excludePrivate --out docs src/index.ts"
+    "lint": "eslint src/** --ignore-path ./.eslintignore"
   },
   "repository": {
     "type": "git",
@@ -21,27 +17,19 @@
   "author": "webigorkiev",
   "license": "ISC",
   "devDependencies": {
+    "@types/chai": "^4.2.18",
     "@types/expect": "^24.3.0",
     "@types/mocha": "^8.2.2",
     "@types/node": "^15.3.0",
     "@typescript-eslint/eslint-plugin": "^4.23.0",
     "chai": "^4.3.4",
-    "chai-http": "^4.3.0",
-    "concurrently": "^6.1.0",
-    "esbuild-loader": "^2.13.0",
     "eslint": "^7.26.0",
     "mocha": "^8.4.0",
-    "mochapack": "^2.1.1",
-    "nodemon": "^2.0.7",
+    "terser": "^5.7.0",
+    "ts-loader": "^9.2.2",
     "ts-mocha": "^8.0.0",
-    "typedoc": "^0.20.36",
-    "typescript": "^4.2.4",
-    "webpack": "^5.37.0",
-    "webpack-cli": "^4.7.0",
-    "webpack-node-externals": "^3.0.0"
-  },
-  "dependencies": {
-    "@jwn-js/common": "git+ssh://tehnoskarb@godisonline.net:/var/www/tehnoskarb/git/@jwn-js/common.git",
-    "@jwn-js/easy-ash": "git+ssh://tehnoskarb@godisonline.net:/var/www/tehnoskarb/git/@jwn-js/easy-ash.git"
+    "typescript": "^4.3.2",
+    "webpack": "^5.38.1",
+    "webpack-cli": "^4.7.0"
   }
 }

@@ -1,5 +1,5 @@
 import {expect} from "chai";
-import ApiError from "@jwn-js/common/ApiError";
+import {ValidationError} from "@/ValidationError";
 import {
     Validation,
     required,
@@ -38,15 +38,15 @@ describe("Validate single param, filters - default, model: {test: {required}}", 
         }
     };
 
-    it(`{} => ApiError`, () => {
+    it(`{} => ValidationError`, () => {
         expect(() => {
             validation.validate({})
-        }).throw(ApiError);
+        }).throw(ValidationError);
     })
     it(`right input params`, () => {
         expect(() => {
             validation.validate(inputParams)
-        }).not.throw(ApiError);
+        }).not.throw(ValidationError);
     })
     it(`1 wrong deep param`, () => {
         expect(() => {
@@ -62,7 +62,7 @@ describe("Validate single param, filters - default, model: {test: {required}}", 
                 }
             };
             validation.validate(inputParams)
-        }).throw(ApiError);
+        }).throw(ValidationError);
     })
     it(`delete 2 level param`, () => {
         expect(() => {
@@ -77,7 +77,7 @@ describe("Validate single param, filters - default, model: {test: {required}}", 
                 }
             };
             validation.validate(inputParams)
-        }).throw(ApiError);
+        }).throw(ValidationError);
     })
 });
 

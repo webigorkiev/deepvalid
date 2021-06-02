@@ -1,5 +1,5 @@
 import validation, {dateIso} from "@/index";
-import ApiError from "@jwn-js/common/ApiError";
+import {ValidationError} from "@/ValidationError";
 import {expect} from "chai";
 
 const valid = validation();
@@ -11,11 +11,11 @@ describe(`dateIso`, () => {
     it(`${iso}`, () => {
         expect(() => {
             valid.validate({test: iso}, ["test"])
-        }).not.throw(ApiError);
+        }).not.throw(ValidationError);
     });
     it(`${date}`, () => {
         expect(() => {
             valid.validate({test: date}, ["test"])
-        }).throw(ApiError);
+        }).throw(ValidationError);
     });
 });

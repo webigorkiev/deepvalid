@@ -1,5 +1,5 @@
 import validation, {number} from "@/index";
-import ApiError from "@jwn-js/common/ApiError";
+import {ValidationError} from "@/ValidationError";
 import {expect} from "chai";
 
 const valid = validation();
@@ -9,11 +9,11 @@ describe(`number`, () => {
     it(`1230.56`, () => {
         expect(() => {
             valid.validate({test: 1230.56}, ["test"])
-        }).not.throw(ApiError);
+        }).not.throw(ValidationError);
     });
     it(`string`, () => {
         expect(() => {
             valid.validate({test: "string"}, ["test"])
-        }).throw(ApiError);
+        }).throw(ValidationError);
     });
 });

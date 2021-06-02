@@ -1,5 +1,5 @@
 import validation, {email} from "@/index";
-import ApiError from "@jwn-js/common/ApiError";
+import {ValidationError} from "@/ValidationError";
 import {expect} from "chai";
 
 const valid = validation();
@@ -9,11 +9,11 @@ describe(`email`, () => {
     it(`test@gmail.com`, () => {
         expect(() => {
             valid.validate({test: "test@gmail.com"}, ["test"])
-        }).not.throw(ApiError);
+        }).not.throw(ValidationError);
     });
     it(`test-gmail.com throw error`, () => {
         expect(() => {
             valid.validate({test: "test-gmail.com"}, ["test"])
-        }).throw(ApiError);
+        }).throw(ValidationError);
     });
 });
