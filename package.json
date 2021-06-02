@@ -1,6 +1,6 @@
 {
   "name": "deepvalid",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Deep input validation for node.js api",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
