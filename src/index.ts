@@ -27,7 +27,7 @@ import Validation, {
 import {ValidationError} from "./ValidationError";
 import {ValidationErrorMessage} from "./ValidationError";
 
-const validation = new Validation();
+const validation = () => new Validation();
 export {
     Validation,
     ValidationFilters,
