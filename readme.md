@@ -1,6 +1,6 @@
-<h1 align="center"> deep-validation </h1>
+<h1 align="center"> deepvalid </h1>
 <p align="center">
-  <b>deep-validation is a simple node.js library for validation API input params</b>
+  <b>deepvalid is a simple node.js library for validation API input params</b>
 </p>
 
 ## Description
@@ -9,7 +9,7 @@ deep-validation helps you build API input params validation
 ## Installation
 
 ```bash
-npm i deep-validation
+npm i deepvalid
 ```
 
 ## Features
@@ -30,7 +30,7 @@ $ npm run test
 ## Usage
 
 ```javascript
-import validation, {ValidationError, required} from "deep-validation";
+import validation, {ValidationError, required} from "deepvalid";
 
 try {
     const request = {test: "test value"};

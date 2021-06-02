@@ -1,7 +1,6 @@
 {
-  "name": "deep-validation",
-  "private": true,
-  "version": "1.0.2",
+  "name": "deepvalid",
+  "version": "1.0.3",
   "description": "Deep input validation for node.js api",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -12,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/webigorkiev/deep-validation.git"
+    "url": "https://github.com/webigorkiev/deepvalid.git"
   },
   "author": "webigorkiev",
   "license": "MIT",
