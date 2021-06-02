@@ -267,7 +267,7 @@ export default class Validation {
         params: Record<string, any>,
         filters: ValidationFilters = []
     ): boolean {
-        const schema = this.cutTwolastLevel(this.#validationModel);
+        const schema = this.lastLevelCut(this.#validationModel);
 
         if(!schema) {
             throw new ValidationError({
@@ -315,16 +315,6 @@ export default class Validation {
     }
 
     /**
-     * Cut last to levels
-     * @param obj - validation model
-     * @returns validation schema
-     * @private
-     */
-    private cutTwolastLevel(obj: ValidationModel):Record<string, any>|undefined {
-        return this.lastLevelCut(this.lastLevelCut(obj));
-    }
-
-    /**
      * Cut last level of object and replace by undefined
      * @param obj - input object (ValidationModel)
      * @param output - output
@@ -341,7 +331,7 @@ export default class Validation {
             if(obj.hasOwnProperty(key)) {
                 const value = obj[key];
 
-                if(isObject(value)) {
+                if(isObject(value) && !value.hasOwnProperty("param")) {
                     output[key] = this.lastLevelCut(value);
                 } else {
 

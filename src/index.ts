@@ -1,4 +1,7 @@
 import Validation, {
+    ValidationFilters,
+    ValidationModel,
+    ValidatorsOptions,
     required,
     boolean,
     array,
@@ -26,6 +29,9 @@ import {ValidationErrorMessage} from "./ValidationError";
 
 export {
     Validation,
+    ValidationFilters,
+    ValidationModel,
+    ValidatorsOptions,
     ValidationError,
     ValidationErrorMessage,
     required,

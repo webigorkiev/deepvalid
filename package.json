@@ -1,8 +1,8 @@
 {
-  "name": "@jwn-js/validation",
+  "name": "deep-validation",
   "private": true,
-  "version": "0.0.4",
-  "description": "Template for @jwn-js packages",
+  "version": "1.0.0",
+  "description": "Deep input validation for node.js api",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -12,10 +12,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "ssh://tehnoskarb@godisonline.net:/var/www/tehnoskarb/git/@jwn-js/node-ts-starter-package.git"
+    "url": "https://github.com/webigorkiev/deep-validation.git"
   },
   "author": "webigorkiev",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@types/chai": "^4.2.18",
     "@types/expect": "^24.3.0",

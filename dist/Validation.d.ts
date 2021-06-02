@@ -189,13 +189,6 @@ export default class Validation {
      */
     private validateRecursively;
     /**
-     * Cut last to levels
-     * @param obj - validation model
-     * @returns validation schema
-     * @private
-     */
-    private cutTwolastLevel;
-    /**
      * Cut last level of object and replace by undefined
      * @param obj - input object (ValidationModel)
      * @param output - output
