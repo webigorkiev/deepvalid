@@ -184,34 +184,34 @@ export default class Validation {
     /**
      * Is show field names
      */
-    #isFieldNameMode: boolean;
+    private readonly isFieldNameMode: boolean;
 
     /**
      * Default statusCode
      */
-    #defaultStatusCode: number;
+    private readonly defaultStatusCode: number;
 
     /**
      * Input params
      */
-    #inputParams: Record<string, any>;
+    private inputParams: Record<string, any>;
 
     /**
      * Only params that has to validate
      */
-    #validatedParams: Record<string| number, any>;
+    private validatedParams: Record<string| number, any> = {};
 
     /**
      * Validation model
      * {"name":{required, minlength: 3}}
      */
-    #validationModel: ValidationModel;
+    private validationModel: ValidationModel;
 
     /**
      * Current field
      * @private
      */
-    #currentField: string;
+    private currentField: string;
 
     /**
      * @constructor
@@ -220,13 +220,15 @@ export default class Validation {
      */
     public constructor(
         model: ValidationModel = {},
-        options: {isFieldNameMode?: boolean,
-            defaultStatusCode?: number} = {}
+        options: {
+            isFieldNameMode?: boolean,
+            defaultStatusCode?: number
+        } = {}
     ) {
         const opt = Object.assign({}, validationDefaultOption, options);
-        this.#validationModel = this.executeFunctionInModel(model);
-        this.#isFieldNameMode = <boolean>opt.isFieldNameMode;
-        this.#defaultStatusCode = <number>opt.defaultStatusCode;
+        this.validationModel = this.executeFunctionInModel(model);
+        this.isFieldNameMode = <boolean>opt.isFieldNameMode;
+        this.defaultStatusCode = <number>opt.defaultStatusCode;
     }
 
     /**
@@ -234,7 +236,7 @@ export default class Validation {
      * @param model - validations model ruls
      */
     public setModel(model: ValidationModel = {}) {
-        this.#validationModel = this.executeFunctionInModel(model);
+        this.validationModel = this.executeFunctionInModel(model);
     }
 
     /**
@@ -267,13 +269,13 @@ export default class Validation {
         params: Record<string, any>,
         filters: ValidationFilters = []
     ): boolean {
-        const schema = this.lastLevelCut(this.#validationModel);
+        const schema = this.lastLevelCut(this.validationModel);
 
         if(!schema) {
             throw new ValidationError({
                 message: `invalid validation model`,
                 code: 1,
-                statusCode: this.#defaultStatusCode
+                statusCode: this.defaultStatusCode
             });
         }
 
@@ -308,10 +310,35 @@ export default class Validation {
                 this.validateRecursively(schema[key], value, filters, [...deepKey, key]);
             } else {
                 this.validateParam([...deepKey, key], value, filters);
+                this.setValidatedValue([...deepKey, key], value);
             }
         }
 
         return true;
+    }
+
+    /**
+     * Set validated key
+     * @param deepKey
+     * @param value
+     * @private
+     */
+    private setValidatedValue(deepKey: Array<string> = [], value: any): void {
+        const len = deepKey.length;
+
+        deepKey.reduce((ac, key, i: number) => {
+
+            if((i + 1) === len) {
+                ac[key] = value;
+            } else {
+
+                if(!ac.hasOwnProperty(key)) {
+                    ac[key] = {};
+                }
+            }
+
+            return ac[key];
+        }, this.validatedParams);
     }
 
     /**
@@ -356,7 +383,7 @@ export default class Validation {
         value: any,
         filters: ValidationFilters
     ): void {
-        this.#currentField = deepKey.join(".");
+        this.currentField = deepKey.join(".");
         const validators = this.getDeepValidators(deepKey);
 
         for(const validator in validators) {
@@ -365,7 +392,7 @@ export default class Validation {
                 throw new ValidationError({
                     message: `Row ${deepKey.join(".")}: validator ${validator} not implemented`,
                     code: 2,
-                    statusCode: this.#defaultStatusCode
+                    statusCode: this.defaultStatusCode
                 });
             }
             let options;
@@ -376,7 +403,7 @@ export default class Validation {
                 throw new ValidationError({
                     message: `validator should be function or object`,
                     code: 1,
-                    statusCode: this.#defaultStatusCode
+                    statusCode: this.defaultStatusCode
                 });
             }
 
@@ -384,7 +411,7 @@ export default class Validation {
                 throw new ValidationError({
                     message: `validator options should have param key`,
                     code: 1,
-                    statusCode: this.#defaultStatusCode
+                    statusCode: this.defaultStatusCode
                 });
             }
 
@@ -412,12 +439,12 @@ export default class Validation {
                 throw new ValidationError({
                     message: `There no validators for ${deepKeys.join(".")}`,
                     code: 1,
-                    statusCode: this.#defaultStatusCode
+                    statusCode: this.defaultStatusCode
                 });
             }
 
             return accumulator[key] as ValidationModel;
-        }, this.#validationModel);
+        }, this.validationModel);
     }
 
     /**
@@ -460,7 +487,7 @@ export default class Validation {
      * @returns params, that have been validated
      */
     public getValidatedParams() {
-        return this.#validatedParams
+        return this.validatedParams
     }
 
     /**
@@ -468,7 +495,7 @@ export default class Validation {
      * @returns all input params
      */
     public getInputParams() {
-        return this.#inputParams;
+        return this.inputParams;
     }
 
     /**
@@ -489,7 +516,7 @@ export default class Validation {
         const errorMessageObj =  Object.assign({
             message: defaultMessage,
             code: defaultCode,
-            statusCode: this.#defaultStatusCode
+            statusCode: this.defaultStatusCode
         }, options);
         errorMessageObj.message = this.messageReplace(errorMessageObj.message, replace);
 
@@ -513,7 +540,7 @@ export default class Validation {
             throw new ValidationError({
                 message: `the value has no length`,
                 code: 3,
-                statusCode: this.#defaultStatusCode
+                statusCode: this.defaultStatusCode
             });
         }
 
@@ -528,7 +555,7 @@ export default class Validation {
     private messageReplace(message: string, arrReplace: Array<string> = []) {
         arrReplace.map(v => message = message.replace('!%', v));
 
-        return this.#isFieldNameMode ? `${this.#currentField}: ${message}` : message;
+        return this.isFieldNameMode ? `${this.currentField}: ${message}` : message;
     }
 
     /**
@@ -623,7 +650,7 @@ export default class Validation {
             throw new ValidationError({
                 message: `options for rangelength should be an array`,
                 code: 8,
-                statusCode: this.#defaultStatusCode
+                statusCode: this.defaultStatusCode
             });
         }
 
@@ -648,7 +675,7 @@ export default class Validation {
             throw new ValidationError({
                 message: `options for min should be should be a number`,
                 code: 10,
-                statusCode: this.#defaultStatusCode
+                statusCode: this.defaultStatusCode
             });
         }
 
@@ -656,7 +683,7 @@ export default class Validation {
             throw new ValidationError({
                 message: `value for min should be should be a number`,
                 code: 10,
-                statusCode: this.#defaultStatusCode
+                statusCode: this.defaultStatusCode
             });
         }
 
@@ -679,7 +706,7 @@ export default class Validation {
             throw new ValidationError({
                 message: `options for max should be should be a number`,
                 code: 12,
-                statusCode: this.#defaultStatusCode
+                statusCode: this.defaultStatusCode
             });
         }
 
@@ -687,7 +714,7 @@ export default class Validation {
             throw new ValidationError({
                 message: `value for min should be should be a number`,
                 code: 12,
-                statusCode: this.#defaultStatusCode
+                statusCode: this.defaultStatusCode
             });
         }
 
@@ -713,7 +740,7 @@ export default class Validation {
             throw new ValidationError({
                 message: `options for range should be should be an array`,
                 code: 12,
-                statusCode: this.#defaultStatusCode
+                statusCode: this.defaultStatusCode
             });
         }
 
@@ -721,7 +748,7 @@ export default class Validation {
             throw new ValidationError({
                 message: `value for range should be should be a number`,
                 code: 12,
-                statusCode: this.#defaultStatusCode
+                statusCode: this.defaultStatusCode
             });
         }
 
@@ -849,7 +876,7 @@ export default class Validation {
             throw new ValidationError({
                 message: `options for regexp should be should be a regex`,
                 code: 22,
-                statusCode: this.#defaultStatusCode
+                statusCode: this.defaultStatusCode
             });
         }
 
@@ -884,7 +911,7 @@ export default class Validation {
             throw new ValidationError({
                 message: `options for rangedate should be should be an array`,
                 code: 25,
-                statusCode: this.#defaultStatusCode
+                statusCode: this.defaultStatusCode
             });
         }
 
@@ -918,7 +945,7 @@ export default class Validation {
             throw new ValidationError({
                 message: `options depends should be should be a function`,
                 code: 24,
-                statusCode: this.#defaultStatusCode
+                statusCode: this.defaultStatusCode
             });
         }
 
