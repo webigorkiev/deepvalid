@@ -34,9 +34,9 @@ import {validator, ValidationError, required} from "deepvalid";
 
 try {
     const request = {test: "test value"};
-    const validator = validator();
-    validator.setModel({"test": {required}});
-    validator.validate(request);
+    const valid = validator();
+    valid.setModel({"test": {required}});
+    valid.validate(request);
     
     return true;
 } catch(err) {

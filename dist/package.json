@@ -1,10 +1,10 @@
 {
   "name": "deepvalid",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": false,
   "description": "Deep input validation for node.js api",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "build": "yarn docs && node scripts/build.js",
     "test": "ts-mocha --paths -p tsconfig.json --recursive ./test/unit/**/*.{js,cjs,mjs,ts}",
