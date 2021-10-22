@@ -1,8 +1,8 @@
-import validation, {rangedate} from "@/index";
+import {validator, rangedate} from "@/index";
 import {ValidationError} from "@/ValidationError";
 import {expect} from "chai";
 
-const valid = validation();
+const valid = validator();
 
 describe(`uaPhone`, () => {
     valid.setModel({test: {rangedate: rangedate([new Date("2020-01-01 00:00:00"), new Date("2020-01-01 01:00:00")])}});

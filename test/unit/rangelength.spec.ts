@@ -1,8 +1,8 @@
-import validation, {rangelength} from "@/index";
+import {validator, rangelength} from "@/index";
 import {ValidationError} from "@/ValidationError";
 import {expect} from "chai";
 
-const valid = validation();
+const valid = validator();
 
 describe(`rangelength 1-5`, () => {
     valid.setModel({test: {rangelength: rangelength([1,5])}});

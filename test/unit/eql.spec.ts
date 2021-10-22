@@ -1,8 +1,8 @@
-import validation, {eql} from "@/index";
+import {validator, eql} from "@/index";
 import {ValidationError} from "@/ValidationError";
 import {expect} from "chai";
 
-const valid = validation();
+const valid = validator();
 describe(`eql`, () => {
     valid.setModel({test: {eql: eql({p:1})}});
     it(`{p:1} eql {p:1}`, () => {

@@ -1,0 +1,49 @@
+{
+  "name": "deepvalid",
+  "version": "1.1.0",
+  "private": false,
+  "description": "Deep input validation for node.js api",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "yarn docs && node scripts/build.js",
+    "test": "ts-mocha --paths -p tsconfig.json --recursive ./test/unit/**/*.{js,cjs,mjs,ts}",
+    "lint": "eslint src/** --ignore-path ./.eslintignore",
+    "docs": "typedoc --includeVersion --excludePrivate --out docs src/index.ts"
+  },
+  "keywords": [
+    "validation",
+    "form validation",
+    "node api validation",
+    "validator",
+    "input params check"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/webigorkiev/deepvalid.git"
+  },
+  "author": "webigorkiev",
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-alias": "^3.1.5",
+    "@types/chai": "^4.2.18",
+    "@types/expect": "^24.3.0",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "^15.3.0",
+    "@typescript-eslint/eslint-plugin": "^4.23.0",
+    "@typescript-eslint/parser": "^4.29.1",
+    "chai": "^4.3.4",
+    "esbuild": "^0.12.20",
+    "eslint": "^7.26.0",
+    "fs-extra": "^10.0.0",
+    "mocha": "^8.4.0",
+    "rollup": "^2.56.2",
+    "rollup-plugin-dts": "^3.0.2",
+    "rollup-plugin-esbuild": "^4.5.0",
+    "terser": "^5.7.0",
+    "ts-loader": "^9.2.2",
+    "ts-mocha": "^8.0.0",
+    "typedoc": "^0.21.5",
+    "typescript": "^4.4.4"
+  }
+}

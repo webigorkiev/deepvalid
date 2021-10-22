@@ -1,8 +1,8 @@
-import validation, {maxlength} from "@/index";
+import {validator, maxlength} from "@/index";
 import {ValidationError} from "@/ValidationError";
 import {expect} from "chai";
 
-const valid = validation();
+const valid = validator();
 
 describe(`maxlength`, () => {
     valid.setModel({test: {maxlength: maxlength(5)}});

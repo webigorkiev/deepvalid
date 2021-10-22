@@ -1,8 +1,8 @@
-import validation, {range} from "@/index";
+import {validator, range} from "@/index";
 import {ValidationError} from "@/ValidationError";
 import {expect} from "chai";
 
-const valid = validation();
+const valid = validator();
 
 describe(`min`, () => {
     valid.setModel({test: {range: range([1, 5])}});

@@ -1,8 +1,8 @@
-import validation, {uaPhone} from "@/index";
+import {validator, uaPhone} from "@/index";
 import {ValidationError} from "@/ValidationError";
 import {expect} from "chai";
 
-const valid = validation();
+const valid = validator();
 
 describe(`uaPhone`, () => {
     valid.setModel({test: {uaPhone}});

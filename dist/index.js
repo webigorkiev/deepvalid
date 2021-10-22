@@ -1,1 +1,522 @@
-(()=>{"use strict";var e={30:function(e,r,t){var a,o,n,i,s,d,l=this&&this.__classPrivateFieldSet||function(e,r,t,a,o){if("m"===a)throw new TypeError("Private method is not writable");if("a"===a&&!o)throw new TypeError("Private accessor was defined without a setter");if("function"==typeof r?e!==r||!o:!r.has(e))throw new TypeError("Cannot write private member to an object whose class did not declare it");return"a"===a?o.call(e,t):o?o.value=t:r.set(e,t),t},u=this&&this.__classPrivateFieldGet||function(e,r,t,a){if("a"===t&&!a)throw new TypeError("Private accessor was defined without a getter");if("function"==typeof r?e!==r||!a:!r.has(e))throw new TypeError("Cannot read private member from an object whose class did not declare it");return"m"===t?a:"a"===t?a.call(e):a?a.value:r.get(e)};Object.defineProperty(r,"__esModule",{value:!0}),r.rangedate=r.depends=r.uaPhone=r.regexp=r.eql=r.equal=r.digits=r.dateIso=r.url=r.email=r.max=r.min=r.range=r.rangelength=r.maxlength=r.minlength=r.object=r.array=r.number=r.boolean=r.required=void 0;const h=t(628),f={isFieldNameMode:!0,defaultCode:400},m=e=>null!=e&&"object"==typeof e&&!Array.isArray(e),p="field values are not  eql";r.required=(e={})=>({param:!0,...e}),r.boolean=(e={})=>({param:!0,...e}),r.number=(e={})=>({param:!0,...e}),r.array=(e={})=>({param:!0,...e}),r.object=(e={})=>({param:!0,...e}),r.minlength=(e=0,r={})=>({param:e,...r}),r.maxlength=(e=255,r={})=>({param:e,...r}),r.rangelength=(e=[0,255],r={})=>({param:e,...r}),r.range=(e=[0,65535],r={})=>({param:e,...r}),r.min=(e=0,r={})=>({param:e,...r}),r.max=(e=65535,r={})=>({param:e,...r}),r.email=(e={})=>({param:!0,...e}),r.url=(e={})=>({param:!0,...e}),r.dateIso=(e={})=>({param:!0,...e}),r.digits=(e={})=>({param:!0,...e}),r.equal=(e,r={})=>({param:e,...r}),r.eql=(e,r={})=>({param:e,...r}),r.regexp=(e=/\d/i,r={})=>({param:e,...r}),r.uaPhone=(e={})=>({param:!0,...e}),r.depends=(e=((e,r={param:!0})=>!0),r={})=>({param:e,...r}),r.rangedate=(e=[new Date,new Date],r={})=>({param:e,...r}),r.default=class{constructor(e={},r={}){a.set(this,void 0),o.set(this,void 0),n.set(this,void 0),i.set(this,void 0),s.set(this,void 0),d.set(this,void 0);const t=Object.assign({},f,r);l(this,s,this.executeFunctionInModel(e),"f"),l(this,a,t.isFieldNameMode,"f"),l(this,o,t.defaultStatusCode,"f")}setModel(e={}){l(this,s,this.executeFunctionInModel(e),"f")}executeFunctionInModel(e){for(const r in e)e.hasOwnProperty(r)&&(m(e[r])&&(e[r]=this.executeFunctionInModel(e[r])),e[r]="function"==typeof e[r]&&"param"!==r?e[r]():e[r]);return e}validate(e,r=[]){const t=this.lastLevelCut(u(this,s,"f"));if(!t)throw new h.ValidationError({message:"invalid validation model",code:1,statusCode:u(this,o,"f")});return this.validateRecursively(t,e,r)}validateRecursively(e,r,t=[],a=[]){for(const o in e){if(!this.isKeyDeepInFilters([...a,o],t)&&t.length)continue;const n=r[o]??void 0;m(e[o])?this.validateRecursively(e[o],n,t,[...a,o]):this.validateParam([...a,o],n,t)}return!0}lastLevelCut(e,r={}){if(e){for(const t in e)if(e.hasOwnProperty(t)){const a=e[t];if(!m(a)||a.hasOwnProperty("param"))return;r[t]=this.lastLevelCut(a)}return r}}validateParam(e,r,t){l(this,d,e.join("."),"f");const a=this.getDeepValidators(e);for(const t in a){if(!a.hasOwnProperty(t)||"function"!=typeof this[t])throw new h.ValidationError({message:`Row ${e.join(".")}: validator ${t} not implemented`,code:2,statusCode:u(this,o,"f")});let n;if(!m(a[t]))throw new h.ValidationError({message:"validator should be function or object",code:1,statusCode:u(this,o,"f")});if(n=a[t],!n.hasOwnProperty("param"))throw new h.ValidationError({message:"validator options should have param key",code:1,statusCode:u(this,o,"f")});(""!==r&&null!=r&&!Number.isNaN(r)||"required"===t)&&this[t](r,n)}}getDeepValidators(e){return e.reduce(((r,t)=>{if(!r.hasOwnProperty(t))throw new h.ValidationError({message:`There no validators for ${e.join(".")}`,code:1,statusCode:u(this,o,"f")});return r[t]}),u(this,s,"f"))}isKeyDeepInFilters(e,r,t=0){const a=e[t];if(!a)return!1;let o=r.includes(a);const n=r.filter((e=>m(e)));for(const r of n)r.hasOwnProperty(a)&&(o=!(t<e.length-1)||this.isKeyDeepInFilters(e,r[a],++t));return o}getValidatedParams(){return u(this,i,"f")}getInputParams(){return u(this,n,"f")}adaptToErrorMessage(e,r,t,a=[]){const n=Object.assign({message:r,code:t,statusCode:u(this,o,"f")},e);return n.message=this.messageReplace(n.message,a),n}valueLength(e){let r;if("string"==typeof e||Array.isArray(e))r=e.length;else{if(!(e instanceof Set||e instanceof Map))throw new h.ValidationError({message:"the value has no length",code:3,statusCode:u(this,o,"f")});r=e.size}return r}messageReplace(e,r=[]){return r.map((r=>e=e.replace("!%",r))),u(this,a,"f")?`${u(this,d,"f")}: ${e}`:e}required(e,r){if(void 0===e||Number.isNaN(e))throw new h.ValidationError(this.adaptToErrorMessage(r,"the value is empty",4))}boolean(e,r){if("boolean"!=typeof e)throw new h.ValidationError(this.adaptToErrorMessage(r,"the value not boolean value",5))}array(e,r){if(!Array.isArray(e))throw new h.ValidationError(this.adaptToErrorMessage(r,"the value not array value",5))}object(e,r){if(!m(e))throw new h.ValidationError(this.adaptToErrorMessage(r,"the value not object value",5))}minlength(e,r){if(this.valueLength(e)<r.param)throw new h.ValidationError(this.adaptToErrorMessage(r,"the number of characters in the line is less !%",6,[r.param]))}maxlength(e,r){if(this.valueLength(e)>r.param)throw new h.ValidationError(this.adaptToErrorMessage(r,"the number of characters in the line is more !%",7,[r.param]))}rangelength(e,r){if(!Array.isArray(r.param))throw new h.ValidationError({message:"options for rangelength should be an array",code:8,statusCode:u(this,o,"f")});const t=this.valueLength(e);if(t<r.param[0]||t>r.param[1])throw new h.ValidationError(this.adaptToErrorMessage(r,"the number of characters in a line outside the range from !% to !% символов",9,[...r.param]))}min(e,r){if("number"!=typeof r.param)throw new h.ValidationError({message:"options for min should be should be a number",code:10,statusCode:u(this,o,"f")});if("number"!=typeof e)throw new h.ValidationError({message:"value for min should be should be a number",code:10,statusCode:u(this,o,"f")});if(e<r.param)throw new h.ValidationError(this.adaptToErrorMessage(r,"the value less than minimum value !%",11,[String(r.param)]))}max(e,r){if("number"!=typeof r.param)throw new h.ValidationError({message:"options for max should be should be a number",code:12,statusCode:u(this,o,"f")});if("number"!=typeof e)throw new h.ValidationError({message:"value for min should be should be a number",code:12,statusCode:u(this,o,"f")});if(e>r.param)throw new h.ValidationError(this.adaptToErrorMessage(r,"the value is greater than the maximum value !%",13,[String(r.param)]))}range(e,r){if(!Array.isArray(r.param)||"number"!=typeof r.param[0]||"number"!=typeof r.param[1])throw new h.ValidationError({message:"options for range should be should be an array",code:12,statusCode:u(this,o,"f")});if("number"!=typeof e)throw new h.ValidationError({message:"value for range should be should be a number",code:12,statusCode:u(this,o,"f")});if(e<r.param[0]||e>r.param[1])throw new h.ValidationError(this.adaptToErrorMessage(r,"the value is not in the range from !% to !%",15,[...r.param]))}email(e,r){if(!/^[a-zA-Z0-9.!#$%&\'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/i.test(e))throw new h.ValidationError(this.adaptToErrorMessage(r,"the email address is not correct",16))}url(e,r){if(!/^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z0-9]-*)*[a-z0-9]+)(?:\.(?:[a-z0-9]-*)*[a-z0-9]+)*(?:\.(?:[a-z]{2,})).?)(?::\d{2,5})?(?:[\/?#]\S*)?$/i.test(e))throw new h.ValidationError(this.adaptToErrorMessage(r,"the url is not correct",17))}dateIso(e,r){if(!/^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/i.test(e))throw new h.ValidationError(this.adaptToErrorMessage(r,"the ISO date format is not correct",18))}digits(e,r){if("number"!=typeof e||e!==Math.round(e))throw new h.ValidationError(this.adaptToErrorMessage(r,"the value is not an integer",19))}number(e,r){if("number"!=typeof e)throw new h.ValidationError(this.adaptToErrorMessage(r,"the value is not a decimal number",20))}equal(e,r){if(e!==r.param)throw new h.ValidationError(this.adaptToErrorMessage(r,"field values are not full equivalent",21))}eql(e,r){if(typeof e!=typeof r.param)throw new h.ValidationError(this.adaptToErrorMessage(r,p,22));if("object"==typeof e){if(JSON.stringify(e)!==JSON.stringify(r.param))throw new h.ValidationError(this.adaptToErrorMessage(r,p,22))}else if(e!==r.param)throw new h.ValidationError(this.adaptToErrorMessage(r,p,22))}regexp(e,r){if(!(r.param instanceof RegExp))throw new h.ValidationError({message:"options for regexp should be should be a regex",code:22,statusCode:u(this,o,"f")});if(!r.param.test(e))throw new h.ValidationError(this.adaptToErrorMessage(r,"the field value does not match the pattern",23))}uaPhone(e,r){if(!/^\+380[5-9]{1}[0-9]{1}[0-9]{3}[0-9]{2}[0-9]{2}$/i.test(e))throw new h.ValidationError(this.adaptToErrorMessage(r,"the phone number is not correct",24))}rangedate(e,r){if(!Array.isArray(r.param))throw new h.ValidationError({message:"options for rangedate should be should be an array",code:25,statusCode:u(this,o,"f")});const t=new Date(e);let a=!0;if(r.param[0]&&t<new Date(r.param[0])&&(a=!1),r.param[0]&&t>new Date(r.param[1])&&(a=!1),!a)throw new h.ValidationError(this.adaptToErrorMessage(r,"the date out of range !% - !%",26,[...r.param]))}depends(e,r){if("function"!=typeof r.param)throw new h.ValidationError({message:"options depends should be should be a function",code:24,statusCode:u(this,o,"f")});if(!r.param(e,r))throw new h.ValidationError(this.adaptToErrorMessage(r,"the custom handler error",27))}},a=new WeakMap,o=new WeakMap,n=new WeakMap,i=new WeakMap,s=new WeakMap,d=new WeakMap},628:(e,r)=>{Object.defineProperty(r,"__esModule",{value:!0}),r.ValidationError=void 0;class t extends Error{constructor(e="",r=0,t=404){super();let a={};"string"==typeof e?(a.message=e,a.code=r,a.statusCode=t):a=e,this.statusCode=a.statusCode??404,this.code=a.code??0,this.message=a.message??"",this.data=a.data??{},this.headers=a.headers??{}}getMessage(){return this.message}getStatusCode(){return this.statusCode}getCode(){return this.code}getData(){return this.data}getHeaders(){return this.headers}}r.ValidationError=t}},r={};function t(a){var o=r[a];if(void 0!==o)return o.exports;var n=r[a]={exports:{}};return e[a].call(n.exports,n,n.exports,t),n.exports}var a={};(()=>{var e=a;Object.defineProperty(e,"__esModule",{value:!0}),e.rangedate=e.depends=e.uaPhone=e.regexp=e.eql=e.equal=e.number=e.digits=e.dateIso=e.url=e.email=e.max=e.min=e.range=e.rangelength=e.maxlength=e.minlength=e.object=e.array=e.boolean=e.required=e.validation=e.ValidationError=e.Validation=void 0;const r=t(30);e.Validation=r.default,Object.defineProperty(e,"required",{enumerable:!0,get:function(){return r.required}}),Object.defineProperty(e,"boolean",{enumerable:!0,get:function(){return r.boolean}}),Object.defineProperty(e,"array",{enumerable:!0,get:function(){return r.array}}),Object.defineProperty(e,"object",{enumerable:!0,get:function(){return r.object}}),Object.defineProperty(e,"minlength",{enumerable:!0,get:function(){return r.minlength}}),Object.defineProperty(e,"maxlength",{enumerable:!0,get:function(){return r.maxlength}}),Object.defineProperty(e,"rangelength",{enumerable:!0,get:function(){return r.rangelength}}),Object.defineProperty(e,"range",{enumerable:!0,get:function(){return r.range}}),Object.defineProperty(e,"min",{enumerable:!0,get:function(){return r.min}}),Object.defineProperty(e,"max",{enumerable:!0,get:function(){return r.max}}),Object.defineProperty(e,"email",{enumerable:!0,get:function(){return r.email}}),Object.defineProperty(e,"url",{enumerable:!0,get:function(){return r.url}}),Object.defineProperty(e,"dateIso",{enumerable:!0,get:function(){return r.dateIso}}),Object.defineProperty(e,"digits",{enumerable:!0,get:function(){return r.digits}}),Object.defineProperty(e,"number",{enumerable:!0,get:function(){return r.number}}),Object.defineProperty(e,"equal",{enumerable:!0,get:function(){return r.equal}}),Object.defineProperty(e,"eql",{enumerable:!0,get:function(){return r.eql}}),Object.defineProperty(e,"regexp",{enumerable:!0,get:function(){return r.regexp}}),Object.defineProperty(e,"uaPhone",{enumerable:!0,get:function(){return r.uaPhone}}),Object.defineProperty(e,"depends",{enumerable:!0,get:function(){return r.depends}}),Object.defineProperty(e,"rangedate",{enumerable:!0,get:function(){return r.rangedate}});const o=t(628);Object.defineProperty(e,"ValidationError",{enumerable:!0,get:function(){return o.ValidationError}});const n=()=>new r.default;e.validation=n,e.default=n})(),module.exports=a})();
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+class ValidationError$1 extends Error {
+  constructor(params = "", code = 0, statusCode = 404) {
+    super();
+    let paramsObj = {};
+    if (typeof params === "string") {
+      paramsObj.message = params;
+      paramsObj.code = code;
+      paramsObj.statusCode = statusCode;
+    } else {
+      paramsObj = params;
+    }
+    this.statusCode = paramsObj.statusCode ?? 404;
+    this.code = paramsObj.code ?? 0;
+    this.message = paramsObj.message ?? "";
+    this.data = paramsObj.data ?? {};
+    this.headers = paramsObj.headers ?? {};
+  }
+  getMessage() {
+    return this.message;
+  }
+  getStatusCode() {
+    return this.statusCode;
+  }
+  getCode() {
+    return this.code;
+  }
+  getData() {
+    return this.data;
+  }
+  getHeaders() {
+    return this.headers;
+  }
+}
+
+const validationDefaultOption = {
+  isFieldNameMode: true,
+  defaultCode: 400
+};
+const isObject = (obj) => obj != null && typeof obj === "object" && !Array.isArray(obj);
+const defaultMessages = {
+  required: "the value is empty",
+  boolean: "the value not boolean value",
+  array: "the value not array value",
+  object: "the value not object value",
+  minlength: "the number of characters in the line is less !%",
+  maxlength: "the number of characters in the line is more !%",
+  rangelength: "the number of characters in a line outside the range from !% to !% \u0441\u0438\u043C\u0432\u043E\u043B\u043E\u0432",
+  range: "the value is not in the range from !% to !%",
+  min: "the value less than minimum value !%",
+  max: "the value is greater than the maximum value !%",
+  email: "the email address is not correct",
+  url: "the url is not correct",
+  dateIso: "the ISO date format is not correct",
+  digits: "the value is not an integer",
+  number: "the value is not a decimal number",
+  equal: "field values are not full equivalent",
+  eql: "field values are not  eql",
+  regexp: "the field value does not match the pattern",
+  phone: "the phone number is not correct",
+  depends: "the custom handler error",
+  rangedate: "the date out of range !% - !%"
+};
+const required = (params = {}) => ({ param: true, ...params });
+const boolean = (params = {}) => ({ param: true, ...params });
+const number = (params = {}) => ({ param: true, ...params });
+const array = (params = {}) => ({ param: true, ...params });
+const object = (params = {}) => ({ param: true, ...params });
+const minlength = (min2 = 0, params = {}) => ({ param: min2, ...params });
+const maxlength = (max2 = 255, params = {}) => ({ param: max2, ...params });
+const rangelength = (range2 = [0, 255], params = {}) => ({ param: range2, ...params });
+const range = (range2 = [0, 65535], params = {}) => ({ param: range2, ...params });
+const min = (min2 = 0, params = {}) => ({ param: min2, ...params });
+const max = (max2 = 65535, params = {}) => ({ param: max2, ...params });
+const email = (params = {}) => ({ param: true, ...params });
+const url = (params = {}) => ({ param: true, ...params });
+const dateIso = (params = {}) => ({ param: true, ...params });
+const digits = (params = {}) => ({ param: true, ...params });
+const equal = (value, params = {}) => ({ param: value, ...params });
+const eql = (value, params = {}) => ({ param: value, ...params });
+const regexp = (regexp2 = /\d/i, params = {}) => ({ param: regexp2, ...params });
+const uaPhone = (params = {}) => ({ param: true, ...params });
+const depends = (handler = (value, options = { param: true }) => true, params = {}) => ({ param: handler, ...params });
+const rangedate = (range2 = [new Date(), new Date()], params = {}) => ({ param: range2, ...params });
+class Validation {
+  constructor(model = {}, options = {}) {
+    this.validatedParams = {};
+    const opt = Object.assign({}, validationDefaultOption, options);
+    this.validationModel = this.executeFunctionInModel(model);
+    this.isFieldNameMode = opt.isFieldNameMode;
+    this.defaultStatusCode = opt.defaultStatusCode;
+  }
+  setModel(model = {}) {
+    this.validationModel = this.executeFunctionInModel(model);
+  }
+  executeFunctionInModel(model) {
+    for (const key in model) {
+      if (model.hasOwnProperty(key)) {
+        if (isObject(model[key])) {
+          model[key] = this.executeFunctionInModel(model[key]);
+        }
+        model[key] = typeof model[key] === "function" && key !== "param" ? model[key]() : model[key];
+      }
+    }
+    return model;
+  }
+  validate(params, filters = []) {
+    const schema = this.lastLevelCut(this.validationModel);
+    if (!schema) {
+      throw new ValidationError$1({
+        message: `invalid validation model`,
+        code: 1,
+        statusCode: this.defaultStatusCode
+      });
+    }
+    return this.validateRecursively(schema, params, filters);
+  }
+  validateRecursively(schema, params, filters = [], deepKey = []) {
+    for (const key in schema) {
+      if (!this.isKeyDeepInFilters([...deepKey, key], filters) && filters.length) {
+        continue;
+      }
+      const value = params[key] ?? void 0;
+      if (isObject(schema[key])) {
+        this.validateRecursively(schema[key], value, filters, [...deepKey, key]);
+      } else {
+        this.validateParam([...deepKey, key], value, filters);
+        this.setValidatedValue([...deepKey, key], value);
+      }
+    }
+    return true;
+  }
+  setValidatedValue(deepKey = [], value) {
+    const len = deepKey.length;
+    deepKey.reduce((ac, key, i) => {
+      if (i + 1 === len) {
+        ac[key] = value;
+      } else {
+        if (!ac.hasOwnProperty(key)) {
+          ac[key] = {};
+        }
+      }
+      return ac[key];
+    }, this.validatedParams);
+  }
+  lastLevelCut(obj, output = {}) {
+    if (!obj) {
+      return void 0;
+    }
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        const value = obj[key];
+        if (isObject(value) && !value.hasOwnProperty("param")) {
+          output[key] = this.lastLevelCut(value);
+        } else {
+          return void 0;
+        }
+      }
+    }
+    return output;
+  }
+  validateParam(deepKey, value, filters) {
+    this.currentField = deepKey.join(".");
+    const validators = this.getDeepValidators(deepKey);
+    for (const validator in validators) {
+      if (!validators.hasOwnProperty(validator) || typeof this[validator] !== "function") {
+        throw new ValidationError$1({
+          message: `Row ${deepKey.join(".")}: validator ${validator} not implemented`,
+          code: 2,
+          statusCode: this.defaultStatusCode
+        });
+      }
+      let options;
+      if (isObject(validators[validator])) {
+        options = validators[validator];
+      } else {
+        throw new ValidationError$1({
+          message: `validator should be function or object`,
+          code: 1,
+          statusCode: this.defaultStatusCode
+        });
+      }
+      if (!options.hasOwnProperty("param")) {
+        throw new ValidationError$1({
+          message: `validator options should have param key`,
+          code: 1,
+          statusCode: this.defaultStatusCode
+        });
+      }
+      if (value !== "" && value !== void 0 && value !== null && !Number.isNaN(value) || validator === "required") {
+        this[validator](value, options);
+      }
+    }
+  }
+  getDeepValidators(deepKeys) {
+    return deepKeys.reduce((accumulator, key) => {
+      if (!accumulator.hasOwnProperty(key)) {
+        throw new ValidationError$1({
+          message: `There no validators for ${deepKeys.join(".")}`,
+          code: 1,
+          statusCode: this.defaultStatusCode
+        });
+      }
+      return accumulator[key];
+    }, this.validationModel);
+  }
+  isKeyDeepInFilters(deepKey, filters, deep = 0) {
+    const key = deepKey[deep];
+    if (!key) {
+      return false;
+    }
+    let isExists = filters.includes(key);
+    const objects = filters.filter((v) => isObject(v));
+    for (const obj of objects) {
+      if (obj.hasOwnProperty(key)) {
+        if (deep < deepKey.length - 1) {
+          isExists = this.isKeyDeepInFilters(deepKey, obj[key], ++deep);
+        } else {
+          isExists = true;
+        }
+      }
+    }
+    return isExists;
+  }
+  getValidatedParams() {
+    return this.validatedParams;
+  }
+  getInputParams() {
+    return this.inputParams;
+  }
+  adaptToErrorMessage(options, defaultMessage, defaultCode, replace = []) {
+    const errorMessageObj = Object.assign({
+      message: defaultMessage,
+      code: defaultCode,
+      statusCode: this.defaultStatusCode
+    }, options);
+    errorMessageObj.message = this.messageReplace(errorMessageObj.message, replace);
+    return errorMessageObj;
+  }
+  valueLength(value) {
+    let length;
+    if (typeof value === "string" || Array.isArray(value)) {
+      length = value.length;
+    } else if (value instanceof Set || value instanceof Map) {
+      length = value.size;
+    } else {
+      throw new ValidationError$1({
+        message: `the value has no length`,
+        code: 3,
+        statusCode: this.defaultStatusCode
+      });
+    }
+    return length;
+  }
+  messageReplace(message, arrReplace = []) {
+    arrReplace.map((v) => message = message.replace("!%", v));
+    return this.isFieldNameMode ? `${this.currentField}: ${message}` : message;
+  }
+  required(value, options) {
+    if (typeof value === "undefined" || Number.isNaN(value)) {
+      throw new ValidationError$1(this.adaptToErrorMessage(options, defaultMessages.required, 4));
+    }
+  }
+  boolean(value, options) {
+    if (typeof value !== "boolean") {
+      throw new ValidationError$1(this.adaptToErrorMessage(options, defaultMessages.boolean, 5));
+    }
+  }
+  array(value, options) {
+    if (!Array.isArray(value)) {
+      throw new ValidationError$1(this.adaptToErrorMessage(options, defaultMessages.array, 5));
+    }
+  }
+  object(value, options) {
+    if (!isObject(value)) {
+      throw new ValidationError$1(this.adaptToErrorMessage(options, defaultMessages.object, 5));
+    }
+  }
+  minlength(value, options) {
+    const length = this.valueLength(value);
+    if (length < options.param) {
+      throw new ValidationError$1(this.adaptToErrorMessage(options, defaultMessages.minlength, 6, [options.param]));
+    }
+  }
+  maxlength(value, options) {
+    const length = this.valueLength(value);
+    if (length > options.param) {
+      throw new ValidationError$1(this.adaptToErrorMessage(options, defaultMessages.maxlength, 7, [options.param]));
+    }
+  }
+  rangelength(value, options) {
+    if (!Array.isArray(options.param)) {
+      throw new ValidationError$1({
+        message: `options for rangelength should be an array`,
+        code: 8,
+        statusCode: this.defaultStatusCode
+      });
+    }
+    const length = this.valueLength(value);
+    if (length < options.param[0] || length > options.param[1]) {
+      throw new ValidationError$1(this.adaptToErrorMessage(options, defaultMessages.rangelength, 9, [...options.param]));
+    }
+  }
+  min(value, options) {
+    if (typeof options.param !== "number") {
+      throw new ValidationError$1({
+        message: `options for min should be should be a number`,
+        code: 10,
+        statusCode: this.defaultStatusCode
+      });
+    }
+    if (typeof value !== "number") {
+      throw new ValidationError$1({
+        message: `value for min should be should be a number`,
+        code: 10,
+        statusCode: this.defaultStatusCode
+      });
+    }
+    if (value < options.param) {
+      throw new ValidationError$1(this.adaptToErrorMessage(options, defaultMessages.min, 11, [String(options.param)]));
+    }
+  }
+  max(value, options) {
+    if (typeof options.param !== "number") {
+      throw new ValidationError$1({
+        message: `options for max should be should be a number`,
+        code: 12,
+        statusCode: this.defaultStatusCode
+      });
+    }
+    if (typeof value !== "number") {
+      throw new ValidationError$1({
+        message: `value for min should be should be a number`,
+        code: 12,
+        statusCode: this.defaultStatusCode
+      });
+    }
+    if (value > options.param) {
+      throw new ValidationError$1(this.adaptToErrorMessage(options, defaultMessages.max, 13, [String(options.param)]));
+    }
+  }
+  range(value, options) {
+    if (!Array.isArray(options.param) || typeof options.param[0] !== "number" || typeof options.param[1] !== "number") {
+      throw new ValidationError$1({
+        message: `options for range should be should be an array`,
+        code: 12,
+        statusCode: this.defaultStatusCode
+      });
+    }
+    if (typeof value !== "number") {
+      throw new ValidationError$1({
+        message: `value for range should be should be a number`,
+        code: 12,
+        statusCode: this.defaultStatusCode
+      });
+    }
+    if (value < options.param[0] || value > options.param[1]) {
+      throw new ValidationError$1(this.adaptToErrorMessage(options, defaultMessages.range, 15, [...options.param]));
+    }
+  }
+  email(value, options) {
+    const regexp2 = /^[a-zA-Z0-9.!#$%&\'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/i;
+    if (!regexp2.test(value)) {
+      throw new ValidationError$1(this.adaptToErrorMessage(options, defaultMessages.email, 16));
+    }
+  }
+  url(value, options) {
+    const regexp2 = /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z0-9]-*)*[a-z0-9]+)(?:\.(?:[a-z0-9]-*)*[a-z0-9]+)*(?:\.(?:[a-z]{2,})).?)(?::\d{2,5})?(?:[\/?#]\S*)?$/i;
+    if (!regexp2.test(value)) {
+      throw new ValidationError$1(this.adaptToErrorMessage(options, defaultMessages.url, 17));
+    }
+  }
+  dateIso(value, options) {
+    const regexp2 = /^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/i;
+    if (!regexp2.test(value)) {
+      throw new ValidationError$1(this.adaptToErrorMessage(options, defaultMessages.dateIso, 18));
+    }
+  }
+  digits(value, options) {
+    if (typeof value !== "number" || value !== Math.round(value)) {
+      throw new ValidationError$1(this.adaptToErrorMessage(options, defaultMessages.digits, 19));
+    }
+  }
+  number(value, options) {
+    if (typeof value !== "number") {
+      throw new ValidationError$1(this.adaptToErrorMessage(options, defaultMessages.number, 20));
+    }
+  }
+  equal(value, options) {
+    if (value !== options.param) {
+      throw new ValidationError$1(this.adaptToErrorMessage(options, defaultMessages.equal, 21));
+    }
+  }
+  eql(value, options) {
+    if (typeof value !== typeof options.param) {
+      throw new ValidationError$1(this.adaptToErrorMessage(options, defaultMessages.eql, 22));
+    }
+    if (typeof value === "object") {
+      if (JSON.stringify(value) !== JSON.stringify(options.param)) {
+        throw new ValidationError$1(this.adaptToErrorMessage(options, defaultMessages.eql, 22));
+      }
+    } else {
+      if (value !== options.param) {
+        throw new ValidationError$1(this.adaptToErrorMessage(options, defaultMessages.eql, 22));
+      }
+    }
+  }
+  regexp(value, options) {
+    if (!(options.param instanceof RegExp)) {
+      throw new ValidationError$1({
+        message: `options for regexp should be should be a regex`,
+        code: 22,
+        statusCode: this.defaultStatusCode
+      });
+    }
+    if (!options.param.test(value)) {
+      throw new ValidationError$1(this.adaptToErrorMessage(options, defaultMessages.regexp, 23));
+    }
+  }
+  uaPhone(value, options) {
+    const regexp2 = /^\+380[5-9]{1}[0-9]{1}[0-9]{3}[0-9]{2}[0-9]{2}$/i;
+    if (!regexp2.test(value)) {
+      throw new ValidationError$1(this.adaptToErrorMessage(options, defaultMessages.phone, 24));
+    }
+  }
+  rangedate(value, options) {
+    if (!Array.isArray(options.param)) {
+      throw new ValidationError$1({
+        message: `options for rangedate should be should be an array`,
+        code: 25,
+        statusCode: this.defaultStatusCode
+      });
+    }
+    const date = new Date(value);
+    let isValid = true;
+    if (options.param[0] && date < new Date(options.param[0])) {
+      isValid = false;
+    }
+    if (options.param[0] && date > new Date(options.param[1])) {
+      isValid = false;
+    }
+    if (!isValid) {
+      throw new ValidationError$1(this.adaptToErrorMessage(options, defaultMessages.rangedate, 26, [...options.param]));
+    }
+  }
+  depends(value, options) {
+    if (typeof options.param !== "function") {
+      throw new ValidationError$1({
+        message: `options depends should be should be a function`,
+        code: 24,
+        statusCode: this.defaultStatusCode
+      });
+    }
+    if (!options.param(value, options)) {
+      throw new ValidationError$1(this.adaptToErrorMessage(options, defaultMessages.depends, 27));
+    }
+  }
+}
+
+class ValidationError extends Error {
+  constructor(params = "", code = 0, statusCode = 404) {
+    super();
+    let paramsObj = {};
+    if (typeof params === "string") {
+      paramsObj.message = params;
+      paramsObj.code = code;
+      paramsObj.statusCode = statusCode;
+    } else {
+      paramsObj = params;
+    }
+    this.statusCode = paramsObj.statusCode ?? 404;
+    this.code = paramsObj.code ?? 0;
+    this.message = paramsObj.message ?? "";
+    this.data = paramsObj.data ?? {};
+    this.headers = paramsObj.headers ?? {};
+  }
+  getMessage() {
+    return this.message;
+  }
+  getStatusCode() {
+    return this.statusCode;
+  }
+  getCode() {
+    return this.code;
+  }
+  getData() {
+    return this.data;
+  }
+  getHeaders() {
+    return this.headers;
+  }
+}
+
+const validator = () => new Validation();
+
+exports.Validation = Validation;
+exports.ValidationError = ValidationError;
+exports.array = array;
+exports.boolean = boolean;
+exports.dateIso = dateIso;
+exports.depends = depends;
+exports.digits = digits;
+exports.email = email;
+exports.eql = eql;
+exports.equal = equal;
+exports.max = max;
+exports.maxlength = maxlength;
+exports.min = min;
+exports.minlength = minlength;
+exports.number = number;
+exports.object = object;
+exports.range = range;
+exports.rangedate = rangedate;
+exports.rangelength = rangelength;
+exports.regexp = regexp;
+exports.required = required;
+exports.uaPhone = uaPhone;
+exports.url = url;
+exports.validator = validator;

@@ -1,7 +1,10 @@
-import Validation, {
+import type {
     ValidationFilters,
     ValidationModel,
     ValidatorsOptions,
+} from "./Validation";
+
+import Validation, {
     required,
     boolean,
     array,
@@ -25,17 +28,14 @@ import Validation, {
     rangedate
 } from "./Validation";
 import {ValidationError} from "./ValidationError";
-import {ValidationErrorMessage} from "./ValidationError";
+import type {ValidationErrorMessage} from "./ValidationError";
 
-const validation = () => new Validation();
+const validator = () => new Validation();
+
 export {
+    validator,
     Validation,
-    ValidationFilters,
-    ValidationModel,
-    ValidatorsOptions,
     ValidationError,
-    ValidationErrorMessage,
-    validation,
     required,
     boolean,
     array,
@@ -58,4 +58,9 @@ export {
     depends,
     rangedate
 };
-export default validation;
+export type {
+    ValidationFilters,
+    ValidationModel,
+    ValidatorsOptions,
+    ValidationErrorMessage,
+}

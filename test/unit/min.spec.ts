@@ -1,8 +1,8 @@
-import validation, {min} from "@/index";
+import {validator, min} from "@/index";
 import {ValidationError} from "@/ValidationError";
 import {expect} from "chai";
 
-const valid = validation();
+const valid = validator();
 
 describe(`min`, () => {
     valid.setModel({test: {min: min(5)}});

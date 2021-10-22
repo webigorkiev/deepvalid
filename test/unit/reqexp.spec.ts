@@ -1,8 +1,8 @@
-import validation, {regexp} from "@/index";
+import {validator, regexp} from "@/index";
 import {ValidationError} from "@/ValidationError";
 import {expect} from "chai";
 
-const valid = validation();
+const valid = validator();
 
 describe(`regexp`, () => {
     valid.setModel({test: {regexp: regexp(/\d+/)}});

@@ -1,8 +1,8 @@
-import validation, {boolean, required, Validation} from "@/index";
+import {validator, boolean, required, Validation} from "@/index";
 import {ValidationError} from "@/ValidationError";
 import {expect} from "chai";
 
-const valid = validation();
+const valid = validator();
 
 describe(`boolean`, () => {
     valid.setModel({test: {boolean}});

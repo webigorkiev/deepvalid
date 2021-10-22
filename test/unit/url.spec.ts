@@ -1,8 +1,8 @@
-import validation, {url} from "@/index";
+import {validator, url} from "@/index";
 import {ValidationError} from "@/ValidationError";
 import {expect} from "chai";
 
-const valid = validation();
+const valid = validator();
 
 describe(`email`, () => {
     valid.setModel({test: {url}});
