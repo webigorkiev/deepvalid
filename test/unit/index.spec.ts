@@ -79,6 +79,10 @@ describe("Validate single param, filters - default, model: {test: {required}}", 
             validation.validate(inputParams)
         }).throw(ValidationError);
     })
+    it("getValidatedParams", () => {
+        validation.validate(inputParams, ["test", {"user": ["fio", "phone"]}]);
+        expect(validation.getValidatedParams()).to.eql({ test: 'test', user: { fio: 'Jws Js J$', phone: '+380931001028' } });
+    })
 });
 
 describe("::isKeyInFilters", () => {

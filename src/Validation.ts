@@ -269,6 +269,7 @@ export default class Validation {
         params: Record<string, any>,
         filters: ValidationFilters = []
     ): boolean {
+        this.validatedParams = {};
         const schema = this.lastLevelCut(this.validationModel);
 
         if(!schema) {

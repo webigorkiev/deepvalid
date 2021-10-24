@@ -11,6 +11,9 @@ deep-validation helps you build API input params validation
 ```bash
 npm i deepvalid
 ```
+## Documentation
+
+https://webigorkiev.github.io/deepvalid/
 
 ## Features
 
