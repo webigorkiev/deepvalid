@@ -80,6 +80,32 @@ describe("Validate single param, filters - default, model: {test: {required}}", 
         }).throw(ValidationError);
     })
     it("getValidatedParams", () => {
+        const inputParams = {
+            test: "test",
+            user: {
+                fio: "Jws Js J$",
+                phone: "+380931001028",
+                address: {
+                    street: "Love Street",
+                    flat: 45
+                }
+            }
+        };
+        const validation = new Validation();
+        validation.setModel({
+            test: {required},
+            user: {
+                fio: {},
+                phone: {required, uaPhone},
+                address: {
+                    street: {required},
+                    flat: {
+                        required,
+                        digits
+                    }
+                }
+            }
+        });
         validation.validate(inputParams, ["test", {"user": ["fio", "phone"]}]);
         expect(validation.getValidatedParams()).to.eql({ test: 'test', user: { fio: 'Jws Js J$', phone: '+380931001028' } });
     })

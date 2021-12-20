@@ -309,6 +309,10 @@ export default class Validation {
 
             if(isObject(schema[key])) {
                 this.validateRecursively(schema[key], value, filters, [...deepKey, key]);
+
+                if(Object.keys(schema[key]).length === 0) {
+                    this.setValidatedValue([...deepKey, key], value);
+                }
             } else {
                 this.validateParam([...deepKey, key], value, filters);
                 this.setValidatedValue([...deepKey, key], value);
