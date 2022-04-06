@@ -5,22 +5,22 @@ import type {ValidationErrorMessage} from "@/ValidationError";
  * Options for validators
  */
 export interface ValidatorsOptions {
-    message?: string,
-    param: any,
-    code?: number,
-    statusCode?: number
+    message?: string, // Error message
+    param: any, // Any params to validator
+    code?: number, // Error code
+    statusCode?: number // Error status code
 }
 
 /**
  * Filters that show - what need validate
  */
 export type ValidationFilters = Array<string|Record<string, ValidationFilters>>;
-
+export type validators = "required"|"boolean"|"array"|"object"|"minlength"|"range"|"min"|"max"|"email"|"url"|"dateIso"|"digits"|"number"|"equal"|"eql"|"regexp"|"phone"|"depends"|"rangedate";
 /**
  * Validation model
  */
 export interface ValidationModel {
-    [x:string]: ValidationModel|ValidatorsOptions|any
+    [x:validators|string]: ((...params: any[]) => ValidatorsOptions)|ValidatorsOptions|ValidationModel
 }
 
 /**
@@ -247,10 +247,13 @@ export default class Validation {
     private executeFunctionInModel(model: ValidationModel) {
         for(const key in model) {
             if(model.hasOwnProperty(key)) {
+
                 if(isObject(model[key])) {
-                    model[key] = this.executeFunctionInModel(model[key]);
+
+                    model[key] = this.executeFunctionInModel(model[key] as ValidationModel);
                 }
 
+                // @ts-ignore
                 model[key] = typeof model[key] === "function" && key !== "param" ? model[key]() : model[key];
             }
         }
@@ -448,7 +451,7 @@ export default class Validation {
                 });
             }
 
-            return accumulator[key] as ValidationModel;
+            return accumulator[key] as unknown as ValidationModel;
         }, this.validationModel);
     }
 

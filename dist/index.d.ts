@@ -15,7 +15,7 @@ declare type ValidationFilters = Array<string | Record<string, ValidationFilters
  * Validation model
  */
 interface ValidationModel {
-    [x: string]: ValidationModel | ValidatorsOptions | any;
+    [x: validators | string]: ((...params: any[]) => ValidatorsOptions) | ValidatorsOptions | ValidationModel;
 }
 /**
  * Value is required
