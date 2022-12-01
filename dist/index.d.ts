@@ -253,7 +253,7 @@ declare class Validation<T = Record<string, any>> {
      * Get only validated params
      * @returns params, that have been validated
      */
-    getValidatedParams(): Record<string | number | keyof T, any>;
+    getValidatedParams(): Record<keyof T, any>;
     /**
      * Get input params
      * @returns all input params

@@ -199,7 +199,7 @@ export default class Validation<T = Record<string, any>> {
     /**
      * Only params that has to validate
      */
-    private validatedParams = {} as Record<keyof T|keyof ValidationModel, any>;
+    private validatedParams: Record<keyof T, any> = {} as Record<keyof T|keyof ValidationModel, any>;
 
     /**
      * Validation model
@@ -272,7 +272,7 @@ export default class Validation<T = Record<string, any>> {
         params: T,
         filters: ValidationFilters = []
     ): boolean {
-        this.validatedParams = {} as Record<keyof T|keyof ValidationModel, any>;
+        this.validatedParams = {} as Record<keyof T, any>;
         const schema = this.lastLevelCut(this.validationModel);
 
         if(!schema) {
@@ -334,7 +334,7 @@ export default class Validation<T = Record<string, any>> {
     private setValidatedValue(deepKey: Array<string> = [], value: any): void {
         const len = deepKey.length;
 
-        deepKey.reduce((ac, key: keyof T|keyof ValidationModel, i: number) => {
+        deepKey.reduce((ac, key, i: number) => {
 
             if((i + 1) === len) {
                 ac[key] = value;
