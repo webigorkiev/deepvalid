@@ -269,7 +269,7 @@ export default class Validation<T = Record<string, any>> {
      * @throws ValidationError
      */
     public validate(
-        params: T,
+        params: T|Record<string, any>,
         filters: ValidationFilters = []
     ): boolean {
         this.validatedParams = {} as Record<keyof T, any>;

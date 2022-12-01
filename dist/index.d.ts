@@ -202,7 +202,7 @@ declare class Validation<T = Record<string, any>> {
      * @returns
      * @throws ValidationError
      */
-    validate(params: T, filters?: ValidationFilters): boolean;
+    validate(params: T | Record<string, any>, filters?: ValidationFilters): boolean;
     /**
      * Validate all object
      * @param params - input object {"test": 123, "user": {"fio":"1", "phone":"2"}}
