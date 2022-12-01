@@ -179,7 +179,7 @@ export const rangedate = (range = [new Date(), new Date()], params = {}) => ({pa
  * Beckend system for validation input data
  * Deep validation model support
  */
-export default class Validation {
+export default class Validation<T = Record<string, any>> {
 
     /**
      * Is show field names
@@ -199,7 +199,7 @@ export default class Validation {
     /**
      * Only params that has to validate
      */
-    private validatedParams: Record<string| number, any> = {};
+    private validatedParams = {} as Record<keyof T|keyof ValidationModel, any>;
 
     /**
      * Validation model
@@ -269,10 +269,10 @@ export default class Validation {
      * @throws ValidationError
      */
     public validate(
-        params: Record<string, any>,
+        params: T,
         filters: ValidationFilters = []
     ): boolean {
-        this.validatedParams = {};
+        this.validatedParams = {} as Record<keyof T|keyof ValidationModel, any>;
         const schema = this.lastLevelCut(this.validationModel);
 
         if(!schema) {
@@ -334,7 +334,7 @@ export default class Validation {
     private setValidatedValue(deepKey: Array<string> = [], value: any): void {
         const len = deepKey.length;
 
-        deepKey.reduce((ac, key, i: number) => {
+        deepKey.reduce((ac, key: keyof T|keyof ValidationModel, i: number) => {
 
             if((i + 1) === len) {
                 ac[key] = value;

@@ -148,7 +148,7 @@ declare const rangedate: (range?: Date[], params?: {}) => {
  * Beckend system for validation input data
  * Deep validation model support
  */
-declare class Validation {
+declare class Validation<T = Record<string, any>> {
     /**
      * Is show field names
      */
@@ -202,7 +202,7 @@ declare class Validation {
      * @returns
      * @throws ValidationError
      */
-    validate(params: Record<string, any>, filters?: ValidationFilters): boolean;
+    validate(params: T, filters?: ValidationFilters): boolean;
     /**
      * Validate all object
      * @param params - input object {"test": 123, "user": {"fio":"1", "phone":"2"}}
@@ -253,7 +253,7 @@ declare class Validation {
      * Get only validated params
      * @returns params, that have been validated
      */
-    getValidatedParams(): Record<string | number, any>;
+    getValidatedParams(): Record<string | number | keyof T, any>;
     /**
      * Get input params
      * @returns all input params
@@ -480,6 +480,6 @@ declare class ValidationError extends Error {
     getHeaders(): Record<string, string>;
 }
 
-declare const validator: () => Validation;
+declare const validator: () => Validation<Record<string, any>>;
 
 export { Validation, ValidationError, ValidationErrorMessage, ValidationFilters, ValidationModel, ValidatorsOptions, array, boolean, dateIso, depends, digits, email, eql, equal, max, maxlength, min, minlength, number, object, range, rangedate, rangelength, regexp, required, uaPhone, url, validator };
