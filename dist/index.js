@@ -194,7 +194,7 @@ class Validation {
           statusCode: this.defaultStatusCode
         });
       }
-      if (value !== "" && value !== void 0 && value !== null && !Number.isNaN(value) || validator === "required") {
+      if (value !== void 0 && value !== null && !Number.isNaN(value) || validator === "required") {
         this[validator](value, options);
       }
     }

@@ -423,9 +423,9 @@ export default class Validation<T = Record<string, any>> {
                 });
             }
 
+            // Если пустая строка, то проходит и require и другие валидаторы
             if((
-                value !== ''
-                && value !== undefined
+                value !== undefined
                 && value !== null
                 && !Number.isNaN(value)
             ) || validator === 'required') {
