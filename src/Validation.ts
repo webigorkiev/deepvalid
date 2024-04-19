@@ -308,7 +308,7 @@ export default class Validation<T = Record<string, any>> {
                 continue;
             }
 
-            const value = params[key] ?? undefined;
+            const value = params?.[key] ?? undefined;
 
             if(isObject(schema[key])) {
                 this.validateRecursively(schema[key], value, filters, [...deepKey, key]);

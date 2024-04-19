@@ -124,7 +124,7 @@ class Validation {
       if (!this.isKeyDeepInFilters([...deepKey, key], filters) && filters.length) {
         continue;
       }
-      const value = params[key] ?? void 0;
+      const value = params?.[key] ?? void 0;
       if (isObject(schema[key])) {
         this.validateRecursively(schema[key], value, filters, [...deepKey, key]);
         if (Object.keys(schema[key]).length === 0) {
